@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,14 +10,14 @@ import (
 func main() {
 	r := gin.Default()
 	r.POST("/pull-request", func(c *gin.Context) {
-		response, err := json.Marshal(c.Request.Body)
+		res, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err,
+				"err": err,
 			})
 		}
 
-		c.JSON(http.StatusOK, response)
+		c.Data(http.StatusOK, "test", res)
 	})
 	r.Run()
 }
