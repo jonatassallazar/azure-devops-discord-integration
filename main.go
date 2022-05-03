@@ -4,7 +4,6 @@ import (
 	"bytes"
 	models "discord-azure-integration/Models"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,18 +47,13 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{})
 		}
 
-		discordRes, err := http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
+		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
 		}
 
-		bodyRes, err := ioutil.ReadAll(discordRes.Body)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
-		}
-
-		c.Data(http.StatusOK, "application/json", bodyRes)
+		c.JSON(http.StatusOK, res)
 	})
 	r.Run()
 }
