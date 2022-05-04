@@ -4,7 +4,6 @@ import (
 	"bytes"
 	models "discord-azure-integration/Models"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,8 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.POST("/pull-request", func(c *gin.Context) {
+
+	r.POST("/pull-request/created", func(c *gin.Context) {
 		var res models.AzureRequest
 		err := c.ShouldBindJSON(&res)
 		if err != nil {
@@ -21,26 +21,7 @@ func main() {
 			})
 		}
 
-		Embeds := []models.Embeds{
-			{
-				Author:      models.Author{Name: res.Resource.LastChangedBy.DisplayName, Url: "", IconUrl: ""},
-				Title:       "Pull Request Created",
-				Url:         res.Resource.Url,
-				Description: "",
-				Color:       15258703,
-				Fields:      []models.Field{{Name: "PR Aberto", Value: res.DetailedMessage.Text}},
-				Thumbnail:   models.URL{Url: "https://upload.wikimedia.org/wikipedia/commons/3/38/4-Nature-Wallpapers-2014-1_ukaavUI.jpg"},
-				Image:       models.URL{Url: ""},
-				Footer:      models.Footer{Text: "", IconUrl: ""},
-			},
-		}
-
-		body := models.DiscordPayload{
-			Username:  "TestAzurePayload",
-			AvatarUrl: "https://i.imgur.com/4M34hi2.png",
-			Content:   res.Message.Text,
-			Embeds:    Embeds,
-		}
+		body := res.ConvertToDiscordPayload(0, false)
 
 		json_data, err := json.Marshal(body)
 
@@ -48,18 +29,55 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{})
 		}
 
-		discordRes, err := http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
+		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
 		}
 
-		bodyRes, err := ioutil.ReadAll(discordRes.Body)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
-		}
-
-		c.Data(http.StatusOK, "application/json", bodyRes)
+		c.JSON(http.StatusOK, res)
 	})
+
+	r.POST("/pull-request/updated", func(c *gin.Context) {
+		var res models.AzureRequest
+		err := c.ShouldBindJSON(&res)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
+		}
+
+		var approved int8
+		var reproved bool
+
+		if len(res.Resource.Reviewers) < 1 {
+			c.JSON(http.StatusBadRequest, gin.H{})
+		} else {
+			for _, i := range res.Resource.Reviewers {
+				if i.Vote == 10 {
+					approved += i.Vote
+				} else if i.Vote == -10 {
+					reproved = true
+				}
+			}
+		}
+
+		body := res.ConvertToDiscordPayload(approved, reproved)
+
+		json_data, err := json.Marshal(body)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{})
+		}
+
+		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{})
+		}
+
+		c.JSON(http.StatusOK, res)
+	})
+
 	r.Run()
 }
