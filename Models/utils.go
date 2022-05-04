@@ -18,12 +18,38 @@ func (a *AzureRequest) ConvertToDiscordPayload(title string, approved int8, repr
 				Url:         a.Resource.Url,
 				Description: fmt.Sprintf("Projeto %s", a.Resource.Repository.Name),
 				Color:       16705372,
-				Fields: []Field{
-					{Name: a.Resource.Status, Value: a.DetailedMessage.Text},
-				},
+				Fields:      a.getFields(),
 			},
 		},
 	}
 
 	return body
+}
+
+func (a *AzureRequest) getFields() []Field {
+	fields := []Field{{Name: a.Resource.Status, Value: a.DetailedMessage.Text}}
+
+	for _, i := range a.Resource.Reviewers {
+		fields = append(fields, Field{Name: i.DisplayName, Value: i.getVoteText()})
+	}
+
+	return fields
+}
+
+func (r *Reviewers) getVoteText() string {
+	switch r.Vote {
+	case 10:
+		return "Aprovado"
+	case 5:
+		return "Aprovado com Sugestões"
+	case 0:
+		return "Sem Voto"
+	case -5:
+		return "Aguardando o Autor"
+	case -10:
+		return "Rejeitado"
+	default:
+		return ""
+	}
+
 }
