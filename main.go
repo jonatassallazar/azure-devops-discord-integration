@@ -21,7 +21,7 @@ func main() {
 			})
 		}
 
-		body := res.ConvertToDiscordPayload("Pull Request Criado", 0, false)
+		body := res.ConvertToDiscordPayload("Pull Request Criado", 16705372, 0, false)
 
 		json_data, err := json.Marshal(body)
 
@@ -62,7 +62,7 @@ func main() {
 			}
 		}
 
-		body := res.ConvertToDiscordPayload("Pull Request Atualizado", approved, reproved)
+		body := res.ConvertToDiscordPayload("Pull Request Atualizado", 15105570, approved, reproved)
 
 		json_data, err := json.Marshal(body)
 
