@@ -2,11 +2,11 @@ package models
 
 import "fmt"
 
-func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32, approved int8, reproved bool) DiscordPayload {
+func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32) DiscordPayload {
 	body := DiscordPayload{
 		Username:  "Azure Pull Request",
-		AvatarUrl: "https://pbs.twimg.com/profile_images/1145617831905681408/XNKktHjN_400x400.png",
-		Content:   a.Resource.Title,
+		AvatarUrl: "",
+		Content:   "",
 		Embeds: []Embeds{
 			{
 				Author: Author{
@@ -15,7 +15,7 @@ func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32, approv
 					IconUrl: a.Resource.CreatedBy.ImageUrl,
 				},
 				Title:       title,
-				Url:         a.Resource.Url,
+				Url:         fmt.Sprintf("%s/pullrequest/%d", a.Resource.Repository.RemoteUrl, a.PullRequestId),
 				Description: fmt.Sprintf("Projeto %s", a.Resource.Repository.Name),
 				Color:       color,
 				Fields:      a.getFields(),
@@ -27,7 +27,7 @@ func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32, approv
 }
 
 func (a *AzureRequest) getFields() []Field {
-	fields := []Field{{Name: a.Resource.Status, Value: a.DetailedMessage.Text}}
+	fields := []Field{{Name: "Título", Value: a.Resource.Title}}
 
 	for _, i := range a.Resource.Reviewers {
 		fields = append(fields, Field{Name: i.DisplayName, Value: i.getVoteText(), Inline: true})

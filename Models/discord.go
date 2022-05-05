@@ -39,3 +39,14 @@ type DiscordPayload struct {
 	Content   string   `json:"content"`
 	Embeds    []Embeds `json:"embeds"`
 }
+
+const (
+	ORANGE  int32 = 15105570 // #E67E22
+	RED     int32 = 15548997 // #ED4245
+	GRAY    int32 = 10070709 // #99AAB5
+	YELLOW  int32 = 16705372 // #FEE75C
+	BLURPLE int32 = 5793266  // #5865F2
+	WHITE   int32 = 16777215 // #FFFFFF
+	GREEN   int32 = 5763713  // #57F287
+	BLACK   int32 = 2303786  // #23272A
+)

@@ -127,6 +127,7 @@ type ResourceContainers struct {
 }
 
 type AzureRequest struct {
+	PullRequestId      int16              `json:"pullRequestId"`
 	SubscriptionId     string             `json:"subscriptionId"`
 	NotificationId     int8               `json:"notificationId"`
 	ID                 string             `json:"id"`
