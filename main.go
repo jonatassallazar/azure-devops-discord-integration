@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	config "discord-azure-integration/Config"
 	models "discord-azure-integration/Models"
 	"encoding/json"
 	"fmt"
@@ -13,6 +14,10 @@ import (
 func main() {
 	r := gin.Default()
 
+	var configsUrls config.ConfigUrls
+
+	config.LoadEnvironment(&configsUrls)
+
 	r.POST("/pull-request/created", func(c *gin.Context) {
 		var res models.AzureRequest
 		err := c.ShouldBindJSON(&res)
@@ -20,20 +25,21 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
+			return
 		}
 
 		body := res.ConvertToDiscordPayload("Pull Request Criado", models.YELLOW)
 
 		json_data, err := json.Marshal(body)
-
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
-		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
-
+		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
 		c.JSON(http.StatusOK, res)
@@ -46,6 +52,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
+			return
 		}
 
 		var approved int8
@@ -53,6 +60,7 @@ func main() {
 
 		if len(res.Resource.Reviewers) < 2 {
 			c.JSON(http.StatusOK, gin.H{})
+			return
 		} else {
 			for _, i := range res.Resource.Reviewers {
 				if i.Vote == 10 {
@@ -74,20 +82,21 @@ func main() {
 			title = "Reprovado"
 		} else {
 			c.JSON(http.StatusOK, gin.H{})
+			return
 		}
 
 		body := res.ConvertToDiscordPayload(fmt.Sprintf("Pull Request %s", title), color)
 
 		json_data, err := json.Marshal(body)
-
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
-		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
-
+		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
 		c.JSON(http.StatusOK, res)
@@ -100,6 +109,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
+			return
 		}
 
 		var color int32
@@ -113,20 +123,21 @@ func main() {
 			title = "com Conflito"
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
 		body := res.ConvertToDiscordPayload(fmt.Sprintf("Pull Request %s", title), color)
 
 		json_data, err := json.Marshal(body)
-
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
-		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
-
+		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
 		c.JSON(http.StatusOK, res)
@@ -139,20 +150,21 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
+			return
 		}
 
 		body := res.ConvertToDiscordPayload("Deploy realizado com Sucesso", models.BLURPLE)
 
 		json_data, err := json.Marshal(body)
-
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
-		_, err = http.Post("https://discord.com/api/webhooks/970868298713559101/DwjQ6AHT65e2Xrf0QwEbKwMpCXGRJu8mUyPegCCnyRShR7NYMP2Mi1i3rndrdAMQIKPy", "application/json", bytes.NewBuffer(json_data))
-
+		_, err = http.Post(configsUrls.DiscordEnvBuildUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{})
+			return
 		}
 
 		c.JSON(http.StatusOK, res)
