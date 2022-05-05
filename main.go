@@ -28,6 +28,8 @@ func main() {
 			return
 		}
 
+		fmt.Println(res)
+
 		body := res.ConvertToDiscordPayload("Pull Request Criado", models.YELLOW)
 
 		json_data, err := json.Marshal(body)
