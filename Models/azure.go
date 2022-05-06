@@ -118,6 +118,8 @@ type Resource struct {
 	Requests           []Requests    `json:"requests"`
 	Reviewers          []Reviewers   `json:"reviewers"`
 	Repository         Repository    `json:"repository"`
+	CodeReviewId       int16         `json:"codeReviewId"`
+	PullRequestId      int16         `json:"pullRequestId"`
 }
 
 type ResourceContainers struct {
@@ -127,8 +129,6 @@ type ResourceContainers struct {
 }
 
 type AzureRequest struct {
-	CodeReviewId       int16              `json:"codeReviewId"`
-	PullRequestId      int16              `json:"pullRequestId"`
 	SubscriptionId     string             `json:"subscriptionId"`
 	NotificationId     int8               `json:"notificationId"`
 	ID                 string             `json:"id"`

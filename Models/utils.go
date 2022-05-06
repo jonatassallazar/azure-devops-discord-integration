@@ -15,7 +15,7 @@ func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32) Discor
 					IconUrl: a.Resource.CreatedBy.ImageUrl,
 				},
 				Title:       title,
-				Url:         fmt.Sprintf("%s/pullrequest/%d", a.Resource.Repository.RemoteUrl, a.CodeReviewId),
+				Url:         fmt.Sprintf("%s/pullrequest/%d", a.Resource.Repository.RemoteUrl, a.Resource.PullRequestId),
 				Description: fmt.Sprintf("Projeto %s", a.Resource.Repository.Name),
 				Color:       color,
 				Fields:      a.getFields(),
