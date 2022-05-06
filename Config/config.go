@@ -12,5 +12,4 @@ type ConfigUrls struct {
 func LoadEnvironment(C *ConfigUrls) {
 	C.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
 	C.DiscordEnvBuildUrl = os.Getenv("DISCORD_BUILD_URL")
-
 }

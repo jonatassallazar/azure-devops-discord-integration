@@ -29,19 +29,21 @@ func main() {
 			return
 		}
 
-		fmt.Println(res)
-
 		body := res.ConvertToDiscordPayload("Pull Request Criado", models.YELLOW)
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
 			return
 		}
 
 		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
 			return
 		}
 
@@ -115,13 +117,18 @@ func main() {
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
 			return
 		}
 
 		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			fmt.Println(err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
 			return
 		}
 
@@ -156,13 +163,17 @@ func main() {
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
 			return
 		}
 
 		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err,
+			})
 			return
 		}
 
