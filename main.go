@@ -84,7 +84,7 @@ func main() {
 		var approved int8
 		var reproved bool
 
-		if len(res.Resource.Reviewers) < 2 {
+		if len(res.Resource.Reviewers) == 0 {
 			c.JSON(http.StatusOK, gin.H{})
 			return
 		} else {
@@ -100,7 +100,7 @@ func main() {
 		var color int32
 		var title string
 
-		if approved >= 20 {
+		if approved >= 10 {
 			color = models.GREEN
 			title = "Aprovado"
 		} else if reproved {
