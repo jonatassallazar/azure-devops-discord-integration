@@ -6,6 +6,7 @@ import (
 	models "discord-azure-integration/Models"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +46,29 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, res)
+	})
+
+	r.POST("/pull-request/test", func(c *gin.Context) {
+		var bodyBytes []byte
+
+		bodyBytes, err := ioutil.ReadAll(c.Request.Body)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{})
+			return
+		}
+
+		if len(bodyBytes) > 0 {
+			var prettyJSON bytes.Buffer
+			if err = json.Indent(&prettyJSON, bodyBytes, "", "\t"); err != nil {
+				fmt.Printf("JSON parse error: %v", err)
+				return
+			}
+			fmt.Println(string(prettyJSON.Bytes()))
+		} else {
+			fmt.Printf("Body: No Body Supplied\n")
+		}
+
+		c.JSON(http.StatusOK, gin.H{})
 	})
 
 	r.POST("/pull-request/review", func(c *gin.Context) {
