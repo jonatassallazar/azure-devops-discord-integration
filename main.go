@@ -141,14 +141,14 @@ func main() {
 		var color int32
 		var title string
 
-		if res.Resource.Status == "succeeded" {
+		if res.Resource.Status == "completed" {
 			color = models.BLURPLE
 			title = "Concluído"
 		} else if res.Resource.Status == "conflicts" {
 			color = models.RED
 			title = "com Conflito"
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{})
+			c.JSON(http.StatusOK, gin.H{})
 			return
 		}
 
