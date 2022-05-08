@@ -118,8 +118,8 @@ type Resource struct {
 	Requests           []Requests    `json:"requests"`
 	Reviewers          []Reviewers   `json:"reviewers"`
 	Repository         Repository    `json:"repository"`
-	CodeReviewId       int16         `json:"codeReviewId"`
-	PullRequestId      int16         `json:"pullRequestId"`
+	CodeReviewId       int32         `json:"codeReviewId"`
+	PullRequestId      int32         `json:"pullRequestId"`
 }
 
 type ResourceContainers struct {
