@@ -219,5 +219,5 @@ func main() {
 		c.JSON(http.StatusOK, res)
 	})
 
-	r.Run(":8085")
+	r.Run()
 }
