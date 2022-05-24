@@ -23,6 +23,7 @@ func main() {
 		var res models.AzureRequest
 		err := c.ShouldBindJSON(&res)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -33,6 +34,7 @@ func main() {
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -41,6 +43,7 @@ func main() {
 
 		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -55,6 +58,7 @@ func main() {
 
 		bodyBytes, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{})
 			return
 		}
@@ -77,6 +81,7 @@ func main() {
 		var res models.AzureRequest
 		err := c.ShouldBindJSON(&res)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -117,6 +122,7 @@ func main() {
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -139,6 +145,7 @@ func main() {
 		var res models.AzureRequest
 		err := c.ShouldBindJSON(&res)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -163,6 +170,7 @@ func main() {
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -171,6 +179,7 @@ func main() {
 
 		_, err = http.Post(configsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -184,6 +193,7 @@ func main() {
 		var res models.AzureRequest
 		err := c.ShouldBindJSON(&res)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"err": err,
 			})
@@ -194,12 +204,14 @@ func main() {
 
 		json_data, err := json.Marshal(body)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{})
 			return
 		}
 
 		_, err = http.Post(configsUrls.DiscordEnvBuildUrl, "application/json", bytes.NewBuffer(json_data))
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusBadRequest, gin.H{})
 			return
 		}
@@ -207,5 +219,5 @@ func main() {
 		c.JSON(http.StatusOK, res)
 	})
 
-	r.Run()
+	r.Run(":8085")
 }
