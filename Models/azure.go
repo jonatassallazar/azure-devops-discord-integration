@@ -130,7 +130,7 @@ type ResourceContainers struct {
 
 type AzureRequest struct {
 	SubscriptionId     string             `json:"subscriptionId"`
-	NotificationId     int8               `json:"notificationId"`
+	NotificationId     int32              `json:"notificationId"`
 	ID                 string             `json:"id"`
 	EventType          string             `json:"eventType"`
 	PublisherId        string             `json:"publisherId"`
