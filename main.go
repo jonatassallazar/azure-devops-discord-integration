@@ -69,7 +69,7 @@ func main() {
 				fmt.Printf("JSON parse error: %v", err)
 				return
 			}
-			fmt.Println(string(prettyJSON.Bytes()))
+			fmt.Println(prettyJSON.String())
 		} else {
 			fmt.Printf("Body: No Body Supplied\n")
 		}
