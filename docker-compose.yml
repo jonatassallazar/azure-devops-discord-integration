@@ -1,7 +1,9 @@
 version: '3'
 services:
   app:
-    build: .
+    build: 
+     context: .
+     dockerfile: Dockerfile
     container_name: azure-devops-discord
     ports:
       - 8080:8080
