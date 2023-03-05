@@ -12,12 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	var configsUrls config.ConfigUrls
 
 	config.LoadEnvironment(&configsUrls)
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
+	})
 
 	r.POST("/pull-request/created", func(c *gin.Context) {
 		var res models.AzureRequest
@@ -218,6 +222,12 @@ func main() {
 
 		c.JSON(http.StatusOK, res)
 	})
+
+	return r
+}
+
+func main() {
+	r := setupRouter()
 
 	r.Run()
 }
