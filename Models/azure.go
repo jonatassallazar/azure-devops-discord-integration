@@ -70,18 +70,28 @@ type Requests struct {
 }
 
 type Project struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Url   string `json:"url"`
-	State string `json:"state"`
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	Description    string    `json:"description"`
+	Url            string    `json:"url"`
+	State          string    `json:"state"`
+	Revision       int16     `json:"revision"`
+	Visibility     string    `json:"visibility"`
+	LastUpdateTime time.Time `json:"lastUpdateTime"`
 }
 
 type Repository struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	Url           string `json:"url"`
-	DefaultBranch string `json:"defaultBranch"`
-	RemoteUrl     string `json:"remoteUrl"`
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	Url             string  `json:"url"`
+	DefaultBranch   string  `json:"defaultBranch"`
+	RemoteUrl       string  `json:"remoteUrl"`
+	Project         Project `json:"project"`
+	Size            int32   `json:"size"`
+	SshUrl          string  `json:"sshUrl"`
+	WebUrl          string  `json:"webUrl"`
+	IsDisabled      bool    `json:"isDisabled"`
+	IsInMaintenance bool    `json:"isInMaintenance"`
 }
 
 type Reviewers struct {
@@ -95,31 +105,57 @@ type Reviewers struct {
 	IsContainer bool   `json:"isContainer"`
 }
 
+type UserAuthor struct {
+	Name  string    `json:"name"`
+	Email string    `json:"email"`
+	Date  time.Time `json:"date"`
+}
+
+type MergeCommit struct {
+	CommitID  string     `json:"commitId"`
+	Url       string     `json:"url"`
+	Author    UserAuthor `json:"author"`
+	Committer UserAuthor `json:"committer"`
+	Comment   string     `json:"comment"`
+}
+
 type Resource struct {
-	Uri                string        `json:"uri"`
-	ID                 int8          `json:"id"`
-	BuildNumber        string        `json:"buildNumber"`
-	Url                string        `json:"url"`
-	Title              string        `json:"title"`
-	StartTime          time.Time     `json:"startTime"`
-	FinishTime         time.Time     `json:"finishTime"`
-	Reason             string        `json:"reason"`
-	Status             string        `json:"status"`
-	DropLocation       string        `json:"dropLocation"`
-	Drop               Drop          `json:"drop"`
-	Log                Log           `json:"log"`
-	SourceGetVersion   string        `json:"sourceGetVersion"`
-	CreatedBy          CreatedBy     `json:"createdBy"`
-	LastChangedBy      LastChangedBy `json:"lastChangedBy"`
-	RetainIndefinitely bool          `json:"retainIndefinitely"`
-	HasDiagnostics     bool          `json:"hasDiagnostics"`
-	Definition         Definition    `json:"definition"`
-	Queue              Queue         `json:"queue"`
-	Requests           []Requests    `json:"requests"`
-	Reviewers          []Reviewers   `json:"reviewers"`
-	Repository         Repository    `json:"repository"`
-	CodeReviewId       int32         `json:"codeReviewId"`
-	PullRequestId      int32         `json:"pullRequestId"`
+	Uri                   string        `json:"uri"`
+	ID                    int8          `json:"id"`
+	BuildNumber           string        `json:"buildNumber"`
+	Url                   string        `json:"url"`
+	Title                 string        `json:"title"`
+	StartTime             time.Time     `json:"startTime"`
+	FinishTime            time.Time     `json:"finishTime"`
+	Reason                string        `json:"reason"`
+	Status                string        `json:"status"`
+	DropLocation          string        `json:"dropLocation"`
+	Drop                  Drop          `json:"drop"`
+	Log                   Log           `json:"log"`
+	SourceGetVersion      string        `json:"sourceGetVersion"`
+	CreatedBy             CreatedBy     `json:"createdBy"`
+	LastChangedBy         LastChangedBy `json:"lastChangedBy"`
+	RetainIndefinitely    bool          `json:"retainIndefinitely"`
+	HasDiagnostics        bool          `json:"hasDiagnostics"`
+	Definition            Definition    `json:"definition"`
+	Queue                 Queue         `json:"queue"`
+	Requests              []Requests    `json:"requests"`
+	Reviewers             []Reviewers   `json:"reviewers"`
+	Repository            Repository    `json:"repository"`
+	CodeReviewId          int32         `json:"codeReviewId"`
+	PullRequestId         int32         `json:"pullRequestId"`
+	CreationDate          time.Time     `json:"creationDate"`
+	Description           string        `json:"description"`
+	SourceRefName         string        `json:"sourceRefName"`
+	TargetRefName         string        `json:"targetRefName"`
+	MergeStatus           string        `json:"mergeStatus"`
+	IsDraft               bool          `json:"isDraft"`
+	MergeID               string        `json:"mergeId"`
+	LastMergeSourceCommit MergeCommit   `json:"lastMergeSourceCommit"`
+	LastMergeTargetCommit MergeCommit   `json:"lastMergeTargetCommit"`
+	LastMergeCommit       MergeCommit   `json:"lastMergeCommit"`
+	SupportsIterations    bool          `json:"supportsIterations"`
+	ArtifactId            string        `json:"ArtifactId"`
 }
 
 type ResourceContainers struct {
