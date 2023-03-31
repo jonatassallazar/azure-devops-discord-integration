@@ -6,17 +6,21 @@ import (
 	models "discord-azure-integration/Models"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func setupRouter() *gin.Engine {
+func setupRouter() (*gin.Engine, error) {
 	r := gin.Default()
 
 	var configsUrls config.ConfigUrls
 
-	config.LoadEnvironment(&configsUrls)
+	err := config.LoadEnvironment(&configsUrls)
+	if err != nil {
+		return nil, err
+	}
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(200, "pong")
@@ -198,11 +202,14 @@ func setupRouter() *gin.Engine {
 		c.JSON(http.StatusOK, res)
 	})
 
-	return r
+	return r, nil
 }
 
 func main() {
-	r := setupRouter()
+	r, err := setupRouter()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	r.Run()
 }

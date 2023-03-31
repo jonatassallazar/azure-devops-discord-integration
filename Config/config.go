@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,17 +11,31 @@ type ConfigUrls struct {
 	DiscordEnvBuildUrl string
 }
 
-func LoadEnvironment(C *ConfigUrls) {
-	loadDotEnv()
+func LoadEnvironment(C *ConfigUrls) error {
+	err := loadDotEnv()
+	if err != nil {
+		return err
+	}
 
 	C.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
 	C.DiscordEnvBuildUrl = os.Getenv("DISCORD_BUILD_URL")
+
+	return nil
 }
 
-func loadDotEnv() {
-	err := godotenv.Load()
+func loadDotEnv() error {
+	env := os.Getenv("APP_ENV")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
+	if env == "" {
+		env = "development"
 	}
+
+	godotenv.Load(".env." + env + ".local")
+	if env != "test" {
+		godotenv.Load(".env.local")
+	}
+	godotenv.Load(".env." + env)
+	godotenv.Load()
+
+	return nil
 }
