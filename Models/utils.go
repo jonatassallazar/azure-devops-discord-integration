@@ -19,6 +19,9 @@ func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32) Discor
 				Description: fmt.Sprintf("Projeto %s", a.Resource.Repository.Name),
 				Color:       color,
 				Fields:      a.getFields(),
+				Footer: Footer{
+					Text: fmt.Sprintf("Status do Commit: %s", a.getMergeStatusText()),
+				},
 			},
 		},
 	}
@@ -51,5 +54,21 @@ func (r *Reviewers) getVoteText() string {
 	default:
 		return ""
 	}
+}
 
+func (a *AzureRequest) getMergeStatusText() string {
+	switch a.Resource.MergeStatus {
+	case "succeeded":
+		return "Sem conflito"
+	case "Conflicts":
+		return "Com conflito"
+	case "Queued":
+		return "Aguardando"
+	case "RejectedByPolicy":
+		return "Rejeitado pelas regras"
+	case "Failure":
+		return "Com erros"
+	default:
+		return ""
+	}
 }
