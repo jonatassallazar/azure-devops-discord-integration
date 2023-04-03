@@ -7,7 +7,7 @@ import (
 )
 
 type Server struct {
-	ConfigUrls *config.ConfigUrls
+	ConfigServer *config.ConfigServer
 }
 
 func (s *Server) Init() (*gin.Engine, error) {

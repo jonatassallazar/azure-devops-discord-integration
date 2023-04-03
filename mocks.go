@@ -7,6 +7,17 @@ import (
 
 var fakeTime = time.Now()
 
+var project = models.Project{
+	ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+	Name:           "Project Doom",
+	Description:    "Team Doom repository.",
+	Url:            "https://doom.azure.com/",
+	State:          "wellFormed",
+	Revision:       123,
+	Visibility:     "private",
+	LastUpdateTime: fakeTime,
+}
+
 var fakePayloadCreatePR = models.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
@@ -21,19 +32,10 @@ var fakePayloadCreatePR = models.AzureRequest{
 	},
 	Resource: models.Resource{
 		Repository: models.Repository{
-			ID:   "0f8a3f57-0bed-4451-86df-09d919e0d169",
-			Name: "repository_name",
-			Url:  "https://azure.com/",
-			Project: models.Project{
-				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
-				Name:           "Project Doom",
-				Description:    "Team Doom repository.",
-				Url:            "https://doom.azure.com/",
-				State:          "wellFormed",
-				Revision:       123,
-				Visibility:     "private",
-				LastUpdateTime: fakeTime,
-			},
+			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
+			Name:            "repository_name",
+			Url:             "https://azure.com/",
+			Project:         project,
 			Size:            132,
 			RemoteUrl:       "https://doom.azure.com/",
 			SshUrl:          "doom@vs-ssh.visualstudio.com:v3/project/repo",
@@ -45,10 +47,10 @@ var fakePayloadCreatePR = models.AzureRequest{
 		CodeReviewId:  4123123,
 		Status:        "active",
 		CreatedBy: models.CreatedBy{
-			DisplayName: "Jonh Don",
+			DisplayName: "John Don",
 			Url:         "https://johndon.com",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			UniqueName:  "jonh_don@doom.com.br",
+			UniqueName:  "john_don@doom.com.br",
 			ImageUrl:    "http://johndon.com",
 		},
 		CreationDate:  fakeTime,
@@ -60,7 +62,7 @@ var fakePayloadCreatePR = models.AzureRequest{
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
 		LastMergeSourceCommit: models.MergeCommit{
-			CommitID: "dfasfasdfb234khb34kjb14",
+			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
 		LastMergeTargetCommit: models.MergeCommit{
@@ -68,7 +70,7 @@ var fakePayloadCreatePR = models.AzureRequest{
 			Url:      "https://",
 		},
 		LastMergeCommit: models.MergeCommit{
-			CommitID: "fdsufhsdf76g9sdfynnh7bdc7208d3",
+			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
 			Author: models.UserAuthor{
 				Name:  "John Don",
 				Email: "john_don@doom.com",
@@ -105,19 +107,10 @@ var fakePayloadApprovedPR = models.AzureRequest{
 	},
 	Resource: models.Resource{
 		Repository: models.Repository{
-			ID:   "0f8a3f57-0bed-4451-86df-09d919e0d169",
-			Name: "repository_name",
-			Url:  "https://azure.com/",
-			Project: models.Project{
-				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
-				Name:           "Project Doom",
-				Description:    "Team Doom repository.",
-				Url:            "https://doom.azure.com/",
-				State:          "wellFormed",
-				Revision:       123,
-				Visibility:     "private",
-				LastUpdateTime: fakeTime,
-			},
+			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
+			Name:            "repository_name",
+			Url:             "https://azure.com/",
+			Project:         project,
 			Size:            132,
 			RemoteUrl:       "https://doom.azure.com/",
 			SshUrl:          "doom@vs-ssh.visualstudio.com:v3/project/repo",
@@ -129,10 +122,10 @@ var fakePayloadApprovedPR = models.AzureRequest{
 		CodeReviewId:  4123123,
 		Status:        "active",
 		CreatedBy: models.CreatedBy{
-			DisplayName: "Jonh Don",
+			DisplayName: "John Don",
 			Url:         "https://johndon.com",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			UniqueName:  "jonh_don@doom.com.br",
+			UniqueName:  "john_don@doom.com.br",
 			ImageUrl:    "http://johndon.com",
 		},
 		CreationDate:  fakeTime,
@@ -144,7 +137,7 @@ var fakePayloadApprovedPR = models.AzureRequest{
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
 		LastMergeSourceCommit: models.MergeCommit{
-			CommitID: "dfasfasdfb234khb34kjb14",
+			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
 		LastMergeTargetCommit: models.MergeCommit{
@@ -152,7 +145,7 @@ var fakePayloadApprovedPR = models.AzureRequest{
 			Url:      "https://",
 		},
 		LastMergeCommit: models.MergeCommit{
-			CommitID: "fdsufhsdf76g9sdfynnh7bdc7208d3",
+			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
 			Author: models.UserAuthor{
 				Name:  "John Don",
 				Email: "john_don@doom.com",
@@ -168,7 +161,7 @@ var fakePayloadApprovedPR = models.AzureRequest{
 		},
 		Reviewers: []models.Reviewers{
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        10,
 				DisplayName: "Jane Doe",
 				UniqueName:  "Jane Doe",
@@ -178,7 +171,7 @@ var fakePayloadApprovedPR = models.AzureRequest{
 				IsContainer: false,
 			},
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        10,
 				DisplayName: "Ali Gator",
 				UniqueName:  "Ali Gator",
@@ -210,19 +203,10 @@ var fakePayloadRejectedPR = models.AzureRequest{
 	},
 	Resource: models.Resource{
 		Repository: models.Repository{
-			ID:   "0f8a3f57-0bed-4451-86df-09d919e0d169",
-			Name: "repository_name",
-			Url:  "https://azure.com/",
-			Project: models.Project{
-				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
-				Name:           "Project Doom",
-				Description:    "Team Doom repository.",
-				Url:            "https://doom.azure.com/",
-				State:          "wellFormed",
-				Revision:       123,
-				Visibility:     "private",
-				LastUpdateTime: fakeTime,
-			},
+			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
+			Name:            "repository_name",
+			Url:             "https://azure.com/",
+			Project:         project,
 			Size:            132,
 			RemoteUrl:       "https://doom.azure.com/",
 			SshUrl:          "doom@vs-ssh.visualstudio.com:v3/project/repo",
@@ -234,10 +218,10 @@ var fakePayloadRejectedPR = models.AzureRequest{
 		CodeReviewId:  4123123,
 		Status:        "active",
 		CreatedBy: models.CreatedBy{
-			DisplayName: "Jonh Don",
+			DisplayName: "John Don",
 			Url:         "https://johndon.com",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			UniqueName:  "jonh_don@doom.com.br",
+			UniqueName:  "john_don@doom.com.br",
 			ImageUrl:    "http://johndon.com",
 		},
 		CreationDate:  fakeTime,
@@ -249,7 +233,7 @@ var fakePayloadRejectedPR = models.AzureRequest{
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
 		LastMergeSourceCommit: models.MergeCommit{
-			CommitID: "dfasfasdfb234khb34kjb14",
+			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
 		LastMergeTargetCommit: models.MergeCommit{
@@ -257,7 +241,7 @@ var fakePayloadRejectedPR = models.AzureRequest{
 			Url:      "https://",
 		},
 		LastMergeCommit: models.MergeCommit{
-			CommitID: "fdsufhsdf76g9sdfynnh7bdc7208d3",
+			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
 			Author: models.UserAuthor{
 				Name:  "John Don",
 				Email: "john_don@doom.com",
@@ -273,7 +257,7 @@ var fakePayloadRejectedPR = models.AzureRequest{
 		},
 		Reviewers: []models.Reviewers{
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        -10,
 				DisplayName: "Jane Doe",
 				UniqueName:  "Jane Doe",
@@ -283,7 +267,7 @@ var fakePayloadRejectedPR = models.AzureRequest{
 				IsContainer: false,
 			},
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        -10,
 				DisplayName: "Ali Gator",
 				UniqueName:  "Ali Gator",
@@ -315,19 +299,10 @@ var fakePayloadNeutralPR = models.AzureRequest{
 	},
 	Resource: models.Resource{
 		Repository: models.Repository{
-			ID:   "0f8a3f57-0bed-4451-86df-09d919e0d169",
-			Name: "repository_name",
-			Url:  "https://azure.com/",
-			Project: models.Project{
-				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
-				Name:           "Project Doom",
-				Description:    "Team Doom repository.",
-				Url:            "https://doom.azure.com/",
-				State:          "wellFormed",
-				Revision:       123,
-				Visibility:     "private",
-				LastUpdateTime: fakeTime,
-			},
+			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
+			Name:            "repository_name",
+			Url:             "https://azure.com/",
+			Project:         project,
 			Size:            132,
 			RemoteUrl:       "https://doom.azure.com/",
 			SshUrl:          "doom@vs-ssh.visualstudio.com:v3/project/repo",
@@ -339,10 +314,10 @@ var fakePayloadNeutralPR = models.AzureRequest{
 		CodeReviewId:  4123123,
 		Status:        "active",
 		CreatedBy: models.CreatedBy{
-			DisplayName: "Jonh Don",
+			DisplayName: "John Don",
 			Url:         "https://johndon.com",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			UniqueName:  "jonh_don@doom.com.br",
+			UniqueName:  "john_don@doom.com.br",
 			ImageUrl:    "http://johndon.com",
 		},
 		CreationDate:  fakeTime,
@@ -354,7 +329,7 @@ var fakePayloadNeutralPR = models.AzureRequest{
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
 		LastMergeSourceCommit: models.MergeCommit{
-			CommitID: "dfasfasdfb234khb34kjb14",
+			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
 		LastMergeTargetCommit: models.MergeCommit{
@@ -362,7 +337,7 @@ var fakePayloadNeutralPR = models.AzureRequest{
 			Url:      "https://",
 		},
 		LastMergeCommit: models.MergeCommit{
-			CommitID: "fdsufhsdf76g9sdfynnh7bdc7208d3",
+			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
 			Author: models.UserAuthor{
 				Name:  "John Don",
 				Email: "john_don@doom.com",
@@ -378,7 +353,7 @@ var fakePayloadNeutralPR = models.AzureRequest{
 		},
 		Reviewers: []models.Reviewers{
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        0,
 				DisplayName: "Jane Doe",
 				UniqueName:  "Jane Doe",
@@ -388,7 +363,7 @@ var fakePayloadNeutralPR = models.AzureRequest{
 				IsContainer: false,
 			},
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        0,
 				DisplayName: "Ali Gator",
 				UniqueName:  "Ali Gator",
@@ -420,19 +395,10 @@ var fakePayloadWaitingPR = models.AzureRequest{
 	},
 	Resource: models.Resource{
 		Repository: models.Repository{
-			ID:   "0f8a3f57-0bed-4451-86df-09d919e0d169",
-			Name: "repository_name",
-			Url:  "https://azure.com/",
-			Project: models.Project{
-				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
-				Name:           "Project Doom",
-				Description:    "Team Doom repository.",
-				Url:            "https://doom.azure.com/",
-				State:          "wellFormed",
-				Revision:       123,
-				Visibility:     "private",
-				LastUpdateTime: fakeTime,
-			},
+			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
+			Name:            "repository_name",
+			Url:             "https://azure.com/",
+			Project:         project,
 			Size:            132,
 			RemoteUrl:       "https://doom.azure.com/",
 			SshUrl:          "doom@vs-ssh.visualstudio.com:v3/project/repo",
@@ -444,10 +410,10 @@ var fakePayloadWaitingPR = models.AzureRequest{
 		CodeReviewId:  4123123,
 		Status:        "active",
 		CreatedBy: models.CreatedBy{
-			DisplayName: "Jonh Don",
+			DisplayName: "John Don",
 			Url:         "https://johndon.com",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			UniqueName:  "jonh_don@doom.com.br",
+			UniqueName:  "john_don@doom.com.br",
 			ImageUrl:    "http://johndon.com",
 		},
 		CreationDate:  fakeTime,
@@ -459,7 +425,7 @@ var fakePayloadWaitingPR = models.AzureRequest{
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
 		LastMergeSourceCommit: models.MergeCommit{
-			CommitID: "dfasfasdfb234khb34kjb14",
+			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
 		LastMergeTargetCommit: models.MergeCommit{
@@ -467,7 +433,7 @@ var fakePayloadWaitingPR = models.AzureRequest{
 			Url:      "https://",
 		},
 		LastMergeCommit: models.MergeCommit{
-			CommitID: "fdsufhsdf76g9sdfynnh7bdc7208d3",
+			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
 			Author: models.UserAuthor{
 				Name:  "John Don",
 				Email: "john_don@doom.com",
@@ -483,7 +449,7 @@ var fakePayloadWaitingPR = models.AzureRequest{
 		},
 		Reviewers: []models.Reviewers{
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        0,
 				DisplayName: "Jane Doe",
 				UniqueName:  "Jane Doe",
@@ -493,7 +459,7 @@ var fakePayloadWaitingPR = models.AzureRequest{
 				IsContainer: false,
 			},
 			{
-				ID:          "fakeid",
+				ID:          "fakeID",
 				Vote:        -5,
 				DisplayName: "Ali Gator",
 				UniqueName:  "Ali Gator",

@@ -10,7 +10,7 @@ func (s *Server) SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	var p = controllers.PullRequestController{
-		ConfigsUrls: s.ConfigUrls,
+		ConfigServer: s.ConfigServer,
 	}
 
 	r.POST("/pull-request/created", p.CreatedPR)

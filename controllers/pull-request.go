@@ -12,7 +12,7 @@ import (
 )
 
 type PullRequestController struct {
-	ConfigsUrls *config.ConfigUrls
+	ConfigServer *config.ConfigServer
 }
 
 func (p *PullRequestController) CreatedPR(c *gin.Context) {
@@ -37,7 +37,7 @@ func (p *PullRequestController) CreatedPR(c *gin.Context) {
 		return
 	}
 
-	_, err = http.Post(p.ConfigsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
+	_, err = http.Post(p.ConfigServer.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -107,7 +107,7 @@ func (p *PullRequestController) ReviewedPR(c *gin.Context) {
 		return
 	}
 
-	_, err = http.Post(p.ConfigsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
+	_, err = http.Post(p.ConfigServer.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -155,7 +155,7 @@ func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
 		return
 	}
 
-	_, err = http.Post(p.ConfigsUrls.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
+	_, err = http.Post(p.ConfigServer.DiscordEnvPRUrl, "application/json", bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
