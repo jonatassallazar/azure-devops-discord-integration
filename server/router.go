@@ -7,6 +7,10 @@ import (
 )
 
 func (s *Server) SetupRouter() *gin.Engine {
+	if s.ConfigServer.GinMode != "" {
+		gin.SetMode(s.ConfigServer.GinMode)
+	}
+
 	r := gin.Default()
 
 	var p = controllers.PullRequestController{

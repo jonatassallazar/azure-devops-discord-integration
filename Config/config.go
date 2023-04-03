@@ -20,8 +20,8 @@ func (c *ConfigServer) LoadEnvironment() error {
 		return err
 	}
 
-	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
-	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
+	c.AppEnv = os.Getenv("APP_ENV")
+	c.GinMode = os.Getenv("GIN_MODE")
 	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
 	c.DiscordEnvBuildUrl = os.Getenv("DISCORD_BUILD_URL")
 
