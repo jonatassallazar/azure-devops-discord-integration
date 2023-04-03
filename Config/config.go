@@ -7,24 +7,28 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type ConfigUrls struct {
+type ConfigServer struct {
+	AppEnv             string
+	GinMode            string
 	DiscordEnvPRUrl    string
 	DiscordEnvBuildUrl string
 }
 
-func LoadEnvironment(C *ConfigUrls) error {
-	err := loadDotEnv()
+func (c *ConfigServer) LoadEnvironment() error {
+	err := c.loadDotEnv()
 	if err != nil {
 		return err
 	}
 
-	C.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
-	C.DiscordEnvBuildUrl = os.Getenv("DISCORD_BUILD_URL")
+	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
+	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
+	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
+	c.DiscordEnvBuildUrl = os.Getenv("DISCORD_BUILD_URL")
 
 	return nil
 }
 
-func loadDotEnv() error {
+func (c *ConfigServer) loadDotEnv() error {
 	env := os.Getenv("APP_ENV")
 
 	if env == "" {

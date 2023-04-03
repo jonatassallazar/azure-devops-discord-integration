@@ -7,15 +7,15 @@ import (
 )
 
 func main() {
-	var configsUrls config.ConfigUrls
+	var c config.ConfigServer
 
-	err := config.LoadEnvironment(&configsUrls)
+	err := c.LoadEnvironment()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 
 	var s = server.Server{
-		ConfigUrls: &configsUrls,
+		ConfigServer: &c,
 	}
 
 	_, err = s.Init()

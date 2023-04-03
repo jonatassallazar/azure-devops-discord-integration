@@ -16,15 +16,15 @@ import (
 )
 
 func prepareRouter() (*gin.Engine, error) {
-	var configsUrls config.ConfigUrls
+	var c config.ConfigServer
 
-	err := config.LoadEnvironment(&configsUrls)
+	err := c.LoadEnvironment()
 	if err != nil {
 		return nil, err
 	}
 
 	var s = server.Server{
-		ConfigUrls: &configsUrls,
+		ConfigServer: &c,
 	}
 
 	r := s.SetupRouter()
