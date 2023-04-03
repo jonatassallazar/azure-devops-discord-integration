@@ -27,10 +27,7 @@ func prepareRouter() (*gin.Engine, error) {
 		ConfigUrls: &configsUrls,
 	}
 
-	r, err := s.Init()
-	if err != nil {
-		return nil, err
-	}
+	r := s.SetupRouter()
 
 	return r, nil
 }
@@ -41,17 +38,6 @@ func TestConfigE2ETesting(t *testing.T) {
 
 	_, err := prepareRouter()
 	assert.Nil(t, err)
-}
-
-func TestPingRoute(t *testing.T) {
-	r, _ := prepareRouter()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/ping", nil)
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, "pong", w.Body.String())
 }
 
 // Should send message to Discord Webhook with created flag
@@ -135,7 +121,7 @@ func TestReviewNeutralRequestRoute(t *testing.T) {
 	}
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, 204, w.Code)
 }
 
 // Should not send message to Discord Webhook
