@@ -13,11 +13,11 @@ import (
 
 type PullRequestController struct {
 	ConfigServer *config.ConfigServer
+	Response     *models.AzureRequest
 }
 
 func (p *PullRequestController) CreatedPR(c *gin.Context) {
-	var res models.AzureRequest
-	err := c.ShouldBindJSON(&res)
+	err := c.ShouldBindJSON(&p.Response)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -26,7 +26,7 @@ func (p *PullRequestController) CreatedPR(c *gin.Context) {
 		return
 	}
 
-	body := res.ConvertToDiscordPayload("Pull Request Criado", models.YELLOW)
+	body := p.Response.ConvertToDiscordPayload("Pull Request Criado", models.YELLOW)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
@@ -46,12 +46,11 @@ func (p *PullRequestController) CreatedPR(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, p.Response)
 }
 
 func (p *PullRequestController) ReviewedPR(c *gin.Context) {
-	var res models.AzureRequest
-	err := c.ShouldBindJSON(&res)
+	err := c.ShouldBindJSON(&p.Response)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -60,43 +59,19 @@ func (p *PullRequestController) ReviewedPR(c *gin.Context) {
 		return
 	}
 
-	var approved int8
-	var reproved bool
-	var waiting bool
-
-	if len(res.Resource.Reviewers) == 0 {
-		c.JSON(http.StatusOK, gin.H{})
-		return
-	} else {
-		for _, i := range res.Resource.Reviewers {
-			if i.Vote == 10 {
-				approved += i.Vote
-			} else if i.Vote == -10 {
-				reproved = true
-			} else if i.Vote == -5 {
-				waiting = true
-			}
-		}
-	}
-
-	var color int32
-	var title string
-
-	if approved >= 10 {
-		color = models.GREEN
-		title = "Aprovado"
-	} else if reproved {
-		color = models.RED
-		title = "Reprovado"
-	} else if waiting {
-		color = models.ORANGE
-		title = "Aguardando Autor"
-	} else {
+	if len(p.Response.Resource.Reviewers) == 0 {
 		c.JSON(http.StatusNoContent, gin.H{})
 		return
 	}
 
-	body := res.ConvertToDiscordPayload(fmt.Sprintf("Pull Request | %s", title), color)
+	color, title := p.processVotes()
+
+	if title == "" {
+		c.JSON(http.StatusNoContent, gin.H{})
+		return
+	}
+
+	body := p.Response.ConvertToDiscordPayload(fmt.Sprintf("Pull Request | %s", title), color)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
@@ -116,12 +91,11 @@ func (p *PullRequestController) ReviewedPR(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, p.Response)
 }
 
 func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
-	var res models.AzureRequest
-	err := c.ShouldBindJSON(&res)
+	err := c.ShouldBindJSON(&p.Response)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -133,10 +107,10 @@ func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
 	var color int32
 	var title string
 
-	if res.Resource.Status == "completed" {
+	if p.Response.Resource.Status == "completed" {
 		color = models.BLURPLE
 		title = "Concluído"
-	} else if res.Resource.Status == "conflicts" {
+	} else if p.Response.Resource.Status == "conflicts" {
 		color = models.RED
 		title = "com Conflito"
 	} else {
@@ -144,7 +118,7 @@ func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
 		return
 	}
 
-	body := res.ConvertToDiscordPayload(fmt.Sprintf("Pull Request %s", title), color)
+	body := p.Response.ConvertToDiscordPayload(fmt.Sprintf("Pull Request %s", title), color)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
@@ -164,5 +138,38 @@ func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, p.Response)
+}
+
+func (p *PullRequestController) processVotes() (int32, string) {
+	var approved bool
+	var reproved bool
+	var waiting bool
+
+	for _, i := range p.Response.Resource.Reviewers {
+		switch i.Vote {
+		case 10:
+			approved = true
+		case -10:
+			reproved = true
+		case -5:
+			waiting = true
+		}
+	}
+
+	var color int32
+	var title string
+
+	if reproved {
+		color = models.RED
+		title = "Reprovado"
+	} else if waiting {
+		color = models.ORANGE
+		title = "Aguardando Autor"
+	} else if approved {
+		color = models.GREEN
+		title = "Aprovado"
+	}
+
+	return color, title
 }
