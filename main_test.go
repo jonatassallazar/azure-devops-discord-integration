@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const REVIEW_ROUTE = "/pull-request/review"
+
 func prepareRouter() (*gin.Engine, error) {
 	var c config.ConfigServer
 
@@ -72,7 +74,7 @@ func TestReviewApprovedRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, "/pull-request/review", bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -93,7 +95,7 @@ func TestReviewRejectedRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, "/pull-request/review", bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -114,7 +116,7 @@ func TestReviewNeutralRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, "/pull-request/review", bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -135,7 +137,7 @@ func TestReviewWaitingForAuthorRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, "/pull-request/review", bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
