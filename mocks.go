@@ -1,7 +1,7 @@
 package main
 
 import (
-	models "discord-azure-integration/Models"
+	models "discord-azure-integration/models"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package server
 
 import (
-	config "discord-azure-integration/Config"
+	config "discord-azure-integration/config"
 
 	"github.com/gin-gonic/gin"
 )

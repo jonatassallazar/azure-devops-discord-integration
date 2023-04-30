@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"bytes"
-	config "discord-azure-integration/Config"
-	models "discord-azure-integration/Models"
+	config "discord-azure-integration/config"
+	models "discord-azure-integration/models"
 	"encoding/json"
 	"fmt"
 	"net/http"
