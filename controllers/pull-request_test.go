@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	models "discord-azure-integration/Models"
+	models "discord-azure-integration/models"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

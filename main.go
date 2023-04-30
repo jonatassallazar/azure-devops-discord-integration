@@ -1,7 +1,7 @@
 package main
 
 import (
-	config "discord-azure-integration/Config"
+	config "discord-azure-integration/config"
 	"discord-azure-integration/server"
 	"log"
 )
