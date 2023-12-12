@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	config "discord-azure-integration/config"
+	"discord-azure-integration/controllers"
 	"discord-azure-integration/server"
 	"encoding/json"
 	"fmt"
@@ -14,8 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
-
-const REVIEW_ROUTE = "/pull-request/review"
 
 func prepareRouter() (*gin.Engine, error) {
 	var c config.ConfigServer
@@ -53,14 +52,14 @@ func TestCreateRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, "/pull-request/created", bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, controllers.CREATED_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 // Should send message to Discord Webhook with approved flag
@@ -74,14 +73,14 @@ func TestReviewApprovedRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 // Should send message to Discord Webhook with rejected flag
@@ -95,17 +94,17 @@ func TestReviewRejectedRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-// Should not send message to Discord Webhook
+// Should NOT send message to Discord Webhook
 func TestReviewNeutralRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
@@ -116,17 +115,17 @@ func TestReviewNeutralRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, 204, w.Code)
+	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
-// Should not send message to Discord Webhook
+// Should send message to Discord Webhook with waiting flag
 func TestReviewWaitingForAuthorRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
@@ -137,12 +136,75 @@ func TestReviewWaitingForAuthorRequestRoute(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+// Should send message to Discord Webhook with complete flag
+func TestCompletedPullRequestRoute(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadCompletedPR)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.STATUS_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+// Should send message to Discord Webhook with conflict flag
+func TestConflictPullRequestRoute(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadConflictPR)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.STATUS_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+// Should NOT send message to Discord Webhook
+func TestOrdinaryUpdatePullRequestRoute(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadOrdinaryUpdatePR)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.STATUS_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNoContent, w.Code)
 }
