@@ -764,3 +764,399 @@ var fakePayloadOrdinaryUpdatePR = models.AzureRequest{
 	ResourceVersion: "1.0",
 	CreatedDate:     fakeTime,
 }
+
+var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
+	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
+	NotificationId: 2,
+	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
+	EventType:      "build.complete",
+	PublisherId:    "tfs",
+	Message: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	DetailedMessage: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	Resource: models.Resource{
+		Links: models.Links{
+			Self: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+			},
+			Web: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
+			},
+			SourceVersionDisplayUri: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
+			},
+			Timeline: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
+			},
+			Badge: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
+			},
+		},
+		TriggerInfo: models.TriggerInfo{
+			SourceBranch:      "refs/heads/homolog",
+			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
+			Message:           "Merge branch 'feature/cetei-8368/suggestions-skynet-infra' into homolog",
+			TriggerRepository: "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+		},
+		ID:          1809692,
+		BuildNumber: "20231212.2",
+		Status:      "completed",
+		Result:      "succeeded",
+		QueueTime:   fakeTime,
+		StartTime:   fakeTime,
+		FinishTime:  fakeTime,
+		Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+		Definition: models.Definition{
+			ID:          7756,
+			Name:        "empodera_workers-homolog",
+			Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
+			Uri:         "vstfs:///Build/Definition/7756",
+			Type:        "build",
+			QueueStatus: "enabled",
+			Revision:    2,
+			Project: models.Project{
+				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				Name:           "Empodera",
+				Description:    "Repositorio do time do Empodera.",
+				Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				State:          "wellFormed",
+				Revision:       3762,
+				Visibility:     "private",
+				LastUpdateTime: fakeTime,
+			},
+		},
+		Project: models.Project{
+			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			Name:           "Empodera",
+			Description:    "Repositorio do time do Empodera.",
+			Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			State:          "wellFormed",
+			Revision:       3762,
+			Visibility:     "private",
+			LastUpdateTime: fakeTime,
+		},
+		Uri: "vstfs:///Build/Build/1809692",
+		RequestedFor: models.RequestedFor{
+			DisplayName: "Iassam da Silva de Souza",
+			Url:         "https://spsprodsbr1.vssps.visualstudio.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			Links: models.Links{
+				Avatar: models.LinkHref{
+					Href: "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+				},
+			},
+			ID:         "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			UniqueName: "BRSSI0002@totvspartners.com.br",
+			ImageUrl:   "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+		},
+		Repository: models.Repository{
+			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+			Name: "empodera_workers",
+			Url:  "https://totvstfs.visualstudio.com/Empodera/_git/empodera_workers",
+		},
+	},
+	CreatedDate: fakeTime,
+}
+
+var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
+	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
+	NotificationId: 2,
+	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
+	EventType:      "build.complete",
+	PublisherId:    "tfs",
+	Message: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	DetailedMessage: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	Resource: models.Resource{
+		Links: models.Links{
+			Self: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+			},
+			Web: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
+			},
+			SourceVersionDisplayUri: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
+			},
+			Timeline: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
+			},
+			Badge: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
+			},
+		},
+		TriggerInfo: models.TriggerInfo{
+			SourceBranch:      "refs/heads/homolog",
+			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
+			Message:           "Merge branch 'feature/cetei-8368/suggestions-skynet-infra' into homolog",
+			TriggerRepository: "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+		},
+		ID:          1809692,
+		BuildNumber: "20231212.2",
+		Status:      "completed",
+		Result:      "failed",
+		QueueTime:   fakeTime,
+		StartTime:   fakeTime,
+		FinishTime:  fakeTime,
+		Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+		Definition: models.Definition{
+			ID:          7756,
+			Name:        "empodera_workers-homolog",
+			Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
+			Uri:         "vstfs:///Build/Definition/7756",
+			Type:        "build",
+			QueueStatus: "enabled",
+			Revision:    2,
+			Project: models.Project{
+				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				Name:           "Empodera",
+				Description:    "Repositorio do time do Empodera.",
+				Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				State:          "wellFormed",
+				Revision:       3762,
+				Visibility:     "private",
+				LastUpdateTime: fakeTime,
+			},
+		},
+		Project: models.Project{
+			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			Name:           "Empodera",
+			Description:    "Repositorio do time do Empodera.",
+			Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			State:          "wellFormed",
+			Revision:       3762,
+			Visibility:     "private",
+			LastUpdateTime: fakeTime,
+		},
+		Uri: "vstfs:///Build/Build/1809692",
+		RequestedFor: models.RequestedFor{
+			DisplayName: "Iassam da Silva de Souza",
+			Url:         "https://spsprodsbr1.vssps.visualstudio.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			Links: models.Links{
+				Avatar: models.LinkHref{
+					Href: "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+				},
+			},
+			ID:         "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			UniqueName: "BRSSI0002@totvspartners.com.br",
+			ImageUrl:   "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+		},
+		Repository: models.Repository{
+			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+			Name: "empodera_workers",
+			Url:  "https://totvstfs.visualstudio.com/Empodera/_git/empodera_workers",
+		},
+	},
+	CreatedDate: fakeTime,
+}
+
+var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
+	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
+	NotificationId: 2,
+	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
+	EventType:      "build.complete",
+	PublisherId:    "tfs",
+	Message: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	DetailedMessage: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	Resource: models.Resource{
+		Links: models.Links{
+			Self: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+			},
+			Web: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
+			},
+			SourceVersionDisplayUri: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
+			},
+			Timeline: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
+			},
+			Badge: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
+			},
+		},
+		TriggerInfo: models.TriggerInfo{
+			SourceBranch:      "refs/heads/homolog",
+			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
+			Message:           "Merge branch 'feature/cetei-8368/suggestions-skynet-infra' into homolog",
+			TriggerRepository: "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+		},
+		ID:          1809692,
+		BuildNumber: "20231212.2",
+		Status:      "completed",
+		Result:      "stopped",
+		QueueTime:   fakeTime,
+		StartTime:   fakeTime,
+		FinishTime:  fakeTime,
+		Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+		Definition: models.Definition{
+			ID:          7756,
+			Name:        "empodera_workers-homolog",
+			Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
+			Uri:         "vstfs:///Build/Definition/7756",
+			Type:        "build",
+			QueueStatus: "enabled",
+			Revision:    2,
+			Project: models.Project{
+				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				Name:           "Empodera",
+				Description:    "Repositorio do time do Empodera.",
+				Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				State:          "wellFormed",
+				Revision:       3762,
+				Visibility:     "private",
+				LastUpdateTime: fakeTime,
+			},
+		},
+		Project: models.Project{
+			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			Name:           "Empodera",
+			Description:    "Repositorio do time do Empodera.",
+			Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			State:          "wellFormed",
+			Revision:       3762,
+			Visibility:     "private",
+			LastUpdateTime: fakeTime,
+		},
+		Uri: "vstfs:///Build/Build/1809692",
+		RequestedFor: models.RequestedFor{
+			DisplayName: "Iassam da Silva de Souza",
+			Url:         "https://spsprodsbr1.vssps.visualstudio.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			Links: models.Links{
+				Avatar: models.LinkHref{
+					Href: "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+				},
+			},
+			ID:         "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			UniqueName: "BRSSI0002@totvspartners.com.br",
+			ImageUrl:   "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+		},
+		Repository: models.Repository{
+			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+			Name: "empodera_workers",
+			Url:  "https://totvstfs.visualstudio.com/Empodera/_git/empodera_workers",
+		},
+	},
+	CreatedDate: fakeTime,
+}
+
+var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
+	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
+	NotificationId: 2,
+	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
+	EventType:      "build.complete",
+	PublisherId:    "tfs",
+	Message: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	DetailedMessage: models.Message{
+		Text:     "Build 20231212.2 succeeded",
+		Html:     "Build <a href=\"https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
+		Markdown: "Build [20231212.2](https://totvstfs.visualstudio.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
+	},
+	Resource: models.Resource{
+		Links: models.Links{
+			Self: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+			},
+			Web: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
+			},
+			SourceVersionDisplayUri: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
+			},
+			Timeline: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
+			},
+			Badge: models.LinkHref{
+				Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
+			},
+		},
+		TriggerInfo: models.TriggerInfo{
+			SourceBranch:      "refs/heads/homolog",
+			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
+			Message:           "Merge branch 'feature/cetei-8368/suggestions-skynet-infra' into homolog",
+			TriggerRepository: "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+		},
+		ID:          1809692,
+		BuildNumber: "20231212.2",
+		Status:      "completed",
+		Result:      "default",
+		QueueTime:   fakeTime,
+		StartTime:   fakeTime,
+		FinishTime:  fakeTime,
+		Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
+		Definition: models.Definition{
+			ID:          7756,
+			Name:        "empodera_workers-homolog",
+			Url:         "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
+			Uri:         "vstfs:///Build/Definition/7756",
+			Type:        "build",
+			QueueStatus: "enabled",
+			Revision:    2,
+			Project: models.Project{
+				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				Name:           "Empodera",
+				Description:    "Repositorio do time do Empodera.",
+				Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+				State:          "wellFormed",
+				Revision:       3762,
+				Visibility:     "private",
+				LastUpdateTime: fakeTime,
+			},
+		},
+		Project: models.Project{
+			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			Name:           "Empodera",
+			Description:    "Repositorio do time do Empodera.",
+			Url:            "https://totvstfs.visualstudio.com/_apis/projects/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			State:          "wellFormed",
+			Revision:       3762,
+			Visibility:     "private",
+			LastUpdateTime: fakeTime,
+		},
+		Uri: "vstfs:///Build/Build/1809692",
+		RequestedFor: models.RequestedFor{
+			DisplayName: "Iassam da Silva de Souza",
+			Url:         "https://spsprodsbr1.vssps.visualstudio.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			Links: models.Links{
+				Avatar: models.LinkHref{
+					Href: "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+				},
+			},
+			ID:         "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
+			UniqueName: "BRSSI0002@totvspartners.com.br",
+			ImageUrl:   "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
+		},
+		Repository: models.Repository{
+			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
+			Name: "empodera_workers",
+			Url:  "https://totvstfs.visualstudio.com/Empodera/_git/empodera_workers",
+		},
+	},
+	CreatedDate: fakeTime,
+}
