@@ -208,3 +208,87 @@ func TestOrdinaryUpdatePullRequestRoute(t *testing.T) {
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
+
+// Should send message to Discord Webhook with Pipeline Details
+func TestPipelineRouteWithSuccessResultSucceeded(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadPipelineUpdateSucceeded)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+// Should send message to Discord Webhook with Pipeline Details
+func TestPipelineRouteWithSuccessResultFailed(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadPipelineUpdateFailed)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+// Should send message to Discord Webhook with Pipeline Details
+func TestPipelineRouteWithSuccessResultStopped(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadPipelineUpdateStopped)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+// Should send message to Discord Webhook with Pipeline Details
+func TestPipelineRouteWithSuccessResultDefault(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadPipelineUpdateDefault)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}

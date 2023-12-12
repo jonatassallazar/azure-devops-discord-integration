@@ -23,7 +23,7 @@ func (s *Server) SetupRouter() *gin.Engine {
 
 	r.POST(controllers.STATUS_ROUTE, p.StatusUpdatedPR)
 
-	// r.POST("/build/completed")
+	r.POST(controllers.PIPELINE_ROUTE, p.PipelineStatusReport)
 
 	return r
 }
