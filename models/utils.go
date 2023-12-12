@@ -2,7 +2,7 @@ package models
 
 import "fmt"
 
-func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32) DiscordPayload {
+func (a *AzureRequest) ConvertToDiscordPayloadPR(title string, color int32) DiscordPayload {
 	body := DiscordPayload{
 		Username:  "Azure Pull Request",
 		AvatarUrl: "",
@@ -21,6 +21,34 @@ func (a *AzureRequest) ConvertToDiscordPayload(title string, color int32) Discor
 				Fields:      a.getFields(),
 				Footer: Footer{
 					Text: fmt.Sprintf("Status do Commit: %s", a.getMergeStatusText()),
+				},
+			},
+		},
+	}
+
+	return body
+}
+
+func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32) DiscordPayload {
+	body := DiscordPayload{
+		Username:  "Azure Pipeline Build",
+		AvatarUrl: "",
+		Content:   "",
+		Embeds: []Embeds{
+			{
+				Author: Author{
+					Name:    a.Resource.RequestedFor.DisplayName,
+					Url:     a.Resource.RequestedFor.Url,
+					IconUrl: a.Resource.RequestedFor.ImageUrl,
+				},
+				Title:       title,
+				Url:         a.Resource.Links.Web.Href,
+				Description: fmt.Sprintf("Projeto %s", a.Resource.Repository.Name),
+				Color:       color,
+				Fields: []Field{
+					{Name: "Pipeline", Value: a.Resource.Definition.Name},
+					{Name: "Branch", Value: a.Resource.TriggerInfo.SourceBranch},
+					{Name: "Merge", Value: a.Resource.TriggerInfo.Message},
 				},
 			},
 		},
