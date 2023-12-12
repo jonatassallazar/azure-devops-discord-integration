@@ -114,7 +114,7 @@ func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
 		color = models.RED
 		title = "com Conflito"
 	} else {
-		c.JSON(http.StatusOK, gin.H{})
+		c.JSON(http.StatusNoContent, gin.H{})
 		return
 	}
 

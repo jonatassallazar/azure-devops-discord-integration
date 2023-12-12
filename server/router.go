@@ -17,11 +17,11 @@ func (s *Server) SetupRouter() *gin.Engine {
 		ConfigServer: s.ConfigServer,
 	}
 
-	r.POST("/pull-request/created", p.CreatedPR)
+	r.POST(controllers.CREATED_ROUTE, p.CreatedPR)
 
-	r.POST("/pull-request/review", p.ReviewedPR)
+	r.POST(controllers.REVIEW_ROUTE, p.ReviewedPR)
 
-	r.POST("/pull-request/status", p.StatusUpdatedPR)
+	r.POST(controllers.STATUS_ROUTE, p.StatusUpdatedPR)
 
 	// r.POST("/build/completed")
 
