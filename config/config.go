@@ -35,19 +35,19 @@ func (c *ConfigServer) loadDotEnv() error {
 		env = "development"
 	}
 
-	var err1 error
-	var err2 error
-	var err3 error
-	var err4 error
+	var errLocalEnv error
+	var errLocal error
+	var errEnv error
+	var errDefault error
 
-	err1 = godotenv.Load(".env." + env + ".local")
+	errLocalEnv = godotenv.Load(".env." + env + ".local")
 	if env != "test" {
-		err2 = godotenv.Load(".env.local")
+		errLocal = godotenv.Load(".env.local")
 	}
-	err3 = godotenv.Load(".env." + env)
-	err4 = godotenv.Load()
+	errEnv = godotenv.Load(".env." + env)
+	errDefault = godotenv.Load()
 
-	if err1 != nil && err2 != nil && err3 != nil && err4 != nil {
+	if errLocalEnv != nil && errLocal != nil && errEnv != nil && errDefault != nil {
 		return errors.New("no env file was loaded")
 	}
 
