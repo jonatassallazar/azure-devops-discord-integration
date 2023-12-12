@@ -26,7 +26,7 @@ func (p *PullRequestController) CreatedPR(c *gin.Context) {
 		return
 	}
 
-	body := p.Response.ConvertToDiscordPayload("Pull Request Criado", models.YELLOW)
+	body := p.Response.ConvertToDiscordPayloadPR("Pull Request Criado", models.YELLOW)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
@@ -71,7 +71,7 @@ func (p *PullRequestController) ReviewedPR(c *gin.Context) {
 		return
 	}
 
-	body := p.Response.ConvertToDiscordPayload(fmt.Sprintf("Pull Request | %s", title), color)
+	body := p.Response.ConvertToDiscordPayloadPR(fmt.Sprintf("Pull Request | %s", title), color)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
@@ -118,7 +118,7 @@ func (p *PullRequestController) StatusUpdatedPR(c *gin.Context) {
 		return
 	}
 
-	body := p.Response.ConvertToDiscordPayload(fmt.Sprintf("Pull Request %s", title), color)
+	body := p.Response.ConvertToDiscordPayloadPR(fmt.Sprintf("Pull Request %s", title), color)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
