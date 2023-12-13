@@ -88,13 +88,13 @@ func (a *AzureRequest) getMergeStatusText() string {
 	switch a.Resource.MergeStatus {
 	case "succeeded":
 		return "Sem conflito"
-	case "Conflicts":
+	case "conflicts":
 		return "Com conflito"
-	case "Queued":
+	case "queued":
 		return "Aguardando"
-	case "RejectedByPolicy":
+	case "rejectedByPolicy":
 		return "Rejeitado pelas regras"
-	case "Failure":
+	case "failure":
 		return "Com erros"
 	default:
 		return ""
