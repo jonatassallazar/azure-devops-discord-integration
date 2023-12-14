@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func (a *AzureRequest) ConvertToDiscordPayloadPR(title string, color int32) DiscordPayload {
 	body := DiscordPayload{
@@ -57,6 +60,35 @@ func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32
 	return body
 }
 
+func (a *AzureRequest) ConvertToDiscordPayloadRelease(title string, color int32) DiscordPayload {
+	body := DiscordPayload{
+		Username:  "Azure Release Build",
+		AvatarUrl: "",
+		Content:   "",
+		Embeds: []Embeds{
+			{
+				Author: Author{
+					Name:    a.Resource.Deployment.RequestedFor.DisplayName,
+					Url:     a.Resource.Deployment.RequestedFor.Url,
+					IconUrl: a.Resource.Deployment.RequestedFor.ImageUrl,
+				},
+				Title:       title,
+				Url:         a.Resource.Environment.ReleaseDefinition.Links.Web.Href,
+				Description: fmt.Sprintf("Release: %s", a.Resource.Environment.ReleaseDefinition.Name),
+				Color:       color,
+				Fields: []Field{
+					{Name: "Release Nº", Value: a.Resource.Environment.Release.Name},
+					{Name: "Description", Value: a.Resource.Environment.Name},
+					{Name: "Iniciado em", Value: a.Resource.Deployment.StartedOn.UTC().Format(time.RFC1123)},
+					{Name: "Finalizado em", Value: a.Resource.Deployment.CompletedOn.UTC().Format(time.RFC1123)},
+				},
+			},
+		},
+	}
+
+	return body
+}
+
 func (a *AzureRequest) getFields() []Field {
 	fields := []Field{{Name: "Título", Value: a.Resource.Title}}
 
@@ -88,13 +120,13 @@ func (a *AzureRequest) getMergeStatusText() string {
 	switch a.Resource.MergeStatus {
 	case "succeeded":
 		return "Sem conflito"
-	case "Conflicts":
+	case "conflicts":
 		return "Com conflito"
-	case "Queued":
+	case "queued":
 		return "Aguardando"
-	case "RejectedByPolicy":
+	case "rejectedByPolicy":
 		return "Rejeitado pelas regras"
-	case "Failure":
+	case "failure":
 		return "Com erros"
 	default:
 		return ""

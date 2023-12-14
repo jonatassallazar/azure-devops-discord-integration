@@ -25,5 +25,7 @@ func (s *Server) SetupRouter() *gin.Engine {
 
 	r.POST(controllers.PIPELINE_ROUTE, p.PipelineStatusReport)
 
+	r.POST(controllers.RELEASE_ROUTE, p.ReleaseStatusReport)
+
 	return r
 }

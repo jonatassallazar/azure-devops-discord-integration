@@ -292,3 +292,24 @@ func TestPipelineRouteWithSuccessResultDefault(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
+// Should send message to Discord Webhook with Pipeline Details
+func TestReleaseRouteWithSuccess(t *testing.T) {
+	r, _ := prepareRouter()
+
+	json_data, err := json.Marshal(fakePayloadReleaseSuccess)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodPost, controllers.RELEASE_ROUTE, bytes.NewBuffer(json_data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
