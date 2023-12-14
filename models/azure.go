@@ -145,6 +145,39 @@ type TriggerInfo struct {
 	TriggerRepository string `json:"ci.triggerRepository"`
 }
 
+type Release struct {
+	ID    int32  `json:"id"`
+	Name  string `json:"name"`
+	Url   string `json:"url"`
+	Links Links  `json:"_links"`
+}
+
+type Deployment struct {
+	ID               int32        `json:"id"`
+	Reason           string       `json:"reason"`
+	DeploymentStatus string       `json:"deploymentStatus"`
+	OperationStatus  string       `json:"operationStatus"`
+	RequestedBy      RequestedFor `json:"requestedBy"`
+	RequestedFor     RequestedFor `json:"requestedFor"`
+	QueuedOn         time.Time    `json:"queuedOn"`
+	StartedOn        time.Time    `json:"startedOn"`
+	CompletedOn      time.Time    `json:"completedOn"`
+}
+
+type Environment struct {
+	ID                int32        `json:"id"`
+	ReleaseID         int32        `json:"releaseId"`
+	Name              string       `json:"name"`
+	Status            string       `json:"status"`
+	CreatedOn         time.Time    `json:"createdOn"`
+	ModifiedOn        time.Time    `json:"modifiedOn"`
+	Release           Release      `json:"release"`
+	ReleaseDefinition Release      `json:"releaseDefinition"`
+	ReleaseCreatedBy  RequestedFor `json:"releaseCreatedBy"`
+	TriggerReason     string       `json:"triggerReason"`
+	TimeToDeploy      float64      `json:"timeToDeploy"`
+}
+
 type Resource struct {
 	Uri                   string        `json:"uri"`
 	ID                    int32         `json:"id"`
@@ -188,6 +221,10 @@ type Resource struct {
 	QueueTime             time.Time     `json:"queueTime"`
 	Project               Project       `json:"project"`
 	RequestedFor          RequestedFor  `json:"requestedFor"`
+	Environment           Environment   `json:"environment"`
+	Deployment            Deployment    `json:"deployment"`
+	StageName             string        `json:"stageName"`
+	AttemptId             int16         `json:"attemptId"`
 }
 
 type ResourceContainers struct {

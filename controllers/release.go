@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PipelineController struct {
+type ReleaseController struct {
 	ConfigServer *config.ConfigServer
 	Response     *models.AzureRequest
 }
 
-func (p *PullRequestController) PipelineStatusReport(c *gin.Context) {
+func (p *PullRequestController) ReleaseStatusReport(c *gin.Context) {
 	err := c.ShouldBindJSON(&p.Response)
 	if err != nil {
 		fmt.Println(err)
@@ -26,14 +26,14 @@ func (p *PullRequestController) PipelineStatusReport(c *gin.Context) {
 		return
 	}
 
-	color, title := p.processStatus()
+	color, title := p.processReleaseStatus()
 
 	if title == "" {
 		c.JSON(http.StatusNoContent, gin.H{})
 		return
 	}
 
-	body := p.Response.ConvertToDiscordPayloadPipeline(fmt.Sprintf("Pipeline %s", title), color)
+	body := p.Response.ConvertToDiscordPayloadRelease(fmt.Sprintf("Release %s", title), color)
 
 	json_data, err := json.Marshal(body)
 	if err != nil {
@@ -44,7 +44,7 @@ func (p *PullRequestController) PipelineStatusReport(c *gin.Context) {
 		return
 	}
 
-	_, err = http.Post(p.ConfigServer.DiscordEnvPipelineUrl, HEADER_APP_JSON, bytes.NewBuffer(json_data))
+	_, err = http.Post(p.ConfigServer.DiscordEnvReleaseUrl, HEADER_APP_JSON, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -56,8 +56,8 @@ func (p *PullRequestController) PipelineStatusReport(c *gin.Context) {
 	c.JSON(http.StatusOK, p.Response)
 }
 
-func (p *PullRequestController) processStatus() (int32, string) {
-	switch p.Response.Resource.Result {
+func (p *PullRequestController) processReleaseStatus() (int32, string) {
+	switch p.Response.Resource.Deployment.DeploymentStatus {
 	case "succeeded":
 		return models.GREEN, "Concluída"
 	case "failed":
@@ -65,6 +65,6 @@ func (p *PullRequestController) processStatus() (int32, string) {
 	case "stopped":
 		return models.ORANGE, "Interrompida"
 	default:
-		return models.WHITE, fmt.Sprintf("[Status não mapeado: %s]", p.Response.Resource.Result)
+		return models.WHITE, fmt.Sprintf("[Status não mapeado: %s]", p.Response.Resource.Deployment.DeploymentStatus)
 	}
 }
