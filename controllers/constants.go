@@ -10,3 +10,6 @@ const STATUS_ROUTE = "/pull-request/status"
 
 // Pipeline
 const PIPELINE_ROUTE = "/pipeline/"
+
+// release
+const RELEASE_ROUTE = "/release/"

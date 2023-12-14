@@ -8,10 +8,11 @@ import (
 )
 
 type ConfigServer struct {
-	AppEnv             string
-	GinMode            string
-	DiscordEnvPRUrl    string
-	DiscordEnvBuildUrl string
+	AppEnv                string
+	GinMode               string
+	DiscordEnvPRUrl       string
+	DiscordEnvPipelineUrl string
+	DiscordEnvReleaseUrl  string
 }
 
 func (c *ConfigServer) LoadEnvironment() error {
@@ -23,7 +24,8 @@ func (c *ConfigServer) LoadEnvironment() error {
 	c.AppEnv = os.Getenv("APP_ENV")
 	c.GinMode = os.Getenv("GIN_MODE")
 	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
-	c.DiscordEnvBuildUrl = os.Getenv("DISCORD_BUILD_URL")
+	c.DiscordEnvPipelineUrl = os.Getenv("DISCORD_PIPELINE_URL")
+	c.DiscordEnvReleaseUrl = os.Getenv("DISCORD_RELEASE_URL")
 
 	return nil
 }

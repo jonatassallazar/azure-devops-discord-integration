@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var fakeTime = time.Now()
+var fakeTime = time.Now().UTC()
 
 var project = models.Project{
 	ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
@@ -1157,6 +1157,109 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 			Name: "empodera_workers",
 			Url:  "https://totvstfs.visualstudio.com/Empodera/_git/empodera_workers",
 		},
+	},
+	CreatedDate: fakeTime,
+}
+
+var fakePayloadReleaseSuccess = models.AzurePipeline{
+	SubscriptionId: "a2346054-e9af-491c-9273-fe07c3bffa01",
+	NotificationId: 1,
+	ID:             "7ae37a82-9be5-4906-82fb-6a796ad95cac",
+	EventType:      "ms.vss-release.deployment-completed-event",
+	PublisherId:    "rm",
+	Message: models.Message{
+		Text:     "Deployment of release Release-62 on stage deploy homolog server succeeded.",
+		Html:     "Deployment on stage <a href='https://totvstfs.visualstudio.com/Empodera/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67'>deploy homolog server</a> succeeded.",
+		Markdown: "Deployment on stage [deploy homolog server](https://totvstfs.visualstudio.com/Empodera/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67) succeeded.",
+	},
+	DetailedMessage: models.Message{
+		Text:     "Deployment of release Release-62 on stage deploy homolog server succeeded. Time to deploy: 00:03:07.",
+		Html:     "Deployment on stage <a href='https://totvstfs.visualstudio.com/Empodera/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67'>deploy homolog server</a> succeeded. Time to deploy: 00:03:07.",
+		Markdown: "Deployment on stage [deploy homolog server](https://totvstfs.visualstudio.com/Empodera/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67) succeeded. Time to deploy: 00:03:07.",
+	},
+	Resource: models.Resource{
+		Environment: models.Environment{
+			ID:         15999,
+			ReleaseID:  7269,
+			Name:       "deploy homolog server",
+			Status:     "succeeded",
+			CreatedOn:  fakeTime,
+			ModifiedOn: fakeTime,
+			Release: models.Release{
+				ID:   7269,
+				Name: "Release-62",
+				Url:  "https://totvstfs.vsrm.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/releases/7269",
+				Links: models.Links{
+					Web: models.LinkHref{
+						Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_release?releaseId=7269&_a=release-summary",
+					},
+					Self: models.LinkHref{
+						Href: "https://totvstfs.vsrm.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/releases/7269",
+					},
+				},
+			},
+			ReleaseDefinition: models.Release{
+				ID:   35,
+				Name: "empodera api homolog (new)",
+				Url:  "https://totvstfs.vsrm.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/definitions/35",
+				Links: models.Links{
+					Web: models.LinkHref{
+						Href: "https://totvstfs.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_release?definitionId=35",
+					},
+					Self: models.LinkHref{
+						Href: "https://totvstfs.vsrm.visualstudio.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/definitions/35",
+					},
+				},
+			},
+			ReleaseCreatedBy: models.RequestedFor{
+				DisplayName: "Alan Ferreira dos Santos",
+				Url:         "https://spsprodsbr1.vssps.visualstudio.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/0f5c62b4-a018-636c-a082-a76705f2f2cb",
+				Links: models.Links{
+					Avatar: models.LinkHref{
+						Href: "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.MGY1YzYyYjQtYTAxOC03MzZjLWEwODItYTc2NzA1ZjJmMmNi",
+					},
+				},
+				ID:         "0f5c62b4-a018-636c-a082-a76705f2f2cb",
+				UniqueName: "alan.fsantos@totvs.com.br",
+				ImageUrl:   "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.MGY1YzYyYjQtYTAxOC03MzZjLWEwODItYTc2NzA1ZjJmMmNi",
+			},
+			TriggerReason: "ReleaseStarted",
+			TimeToDeploy:  3.1220666666666665,
+		},
+		Project: models.Project{
+			ID:   "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
+			Name: "Empodera",
+		},
+		Deployment: models.Deployment{
+			ID:               10414,
+			Reason:           "automated",
+			DeploymentStatus: "succeeded",
+			OperationStatus:  "Approved",
+			RequestedBy: models.RequestedFor{
+				DisplayName: "Microsoft.VisualStudio.Services.ReleaseManagement",
+				ID:          "0000000d-0000-8888-8000-000000000000",
+				UniqueName:  "0000000d-0000-8888-8000-000000000000@2c895908-04e0-4952-89fd-54b0046d6288",
+			},
+			RequestedFor: models.RequestedFor{
+				DisplayName: "Alan Ferreira dos Santos",
+				Url:         "https://spsprodsbr1.vssps.visualstudio.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/0f5c62b4-a018-636c-a082-a76705f2f2cb",
+				Links: models.Links{
+					Avatar: models.LinkHref{
+						Href: "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.MGY1YzYyYjQtYTAxOC03MzZjLWEwODItYTc2NzA1ZjJmMmNi",
+					},
+				},
+				ID:         "0f5c62b4-a018-636c-a082-a76705f2f2cb",
+				UniqueName: "alan.fsantos@totvs.com.br",
+				ImageUrl:   "https://totvstfs.visualstudio.com/_apis/GraphProfile/MemberAvatars/aad.MGY1YzYyYjQtYTAxOC03MzZjLWEwODItYTc2NzA1ZjJmMmNi",
+			},
+			QueuedOn:    fakeTime,
+			StartedOn:   fakeTime,
+			CompletedOn: fakeTime,
+		},
+		StageName: "deploy homolog server",
+		AttemptId: 1,
+		ID:        7269,
+		Url:       "https://totvstfs.visualstudio.com/Empodera/_release?releaseId=7269&_a=release-summary",
 	},
 	CreatedDate: fakeTime,
 }

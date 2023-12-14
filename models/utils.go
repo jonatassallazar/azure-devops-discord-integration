@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func (a *AzureRequest) ConvertToDiscordPayloadPR(title string, color int32) DiscordPayload {
 	body := DiscordPayload{
@@ -49,6 +52,35 @@ func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32
 					{Name: "Pipeline", Value: a.Resource.Definition.Name},
 					{Name: "Branch", Value: a.Resource.TriggerInfo.SourceBranch},
 					{Name: "Merge", Value: a.Resource.TriggerInfo.Message},
+				},
+			},
+		},
+	}
+
+	return body
+}
+
+func (a *AzureRequest) ConvertToDiscordPayloadRelease(title string, color int32) DiscordPayload {
+	body := DiscordPayload{
+		Username:  "Azure Release Build",
+		AvatarUrl: "",
+		Content:   "",
+		Embeds: []Embeds{
+			{
+				Author: Author{
+					Name:    a.Resource.Deployment.RequestedFor.DisplayName,
+					Url:     a.Resource.Deployment.RequestedFor.Url,
+					IconUrl: a.Resource.Deployment.RequestedFor.ImageUrl,
+				},
+				Title:       title,
+				Url:         a.Resource.Environment.ReleaseDefinition.Links.Web.Href,
+				Description: fmt.Sprintf("Release: %s", a.Resource.Environment.ReleaseDefinition.Name),
+				Color:       color,
+				Fields: []Field{
+					{Name: "Release Nº", Value: a.Resource.Environment.Release.Name},
+					{Name: "Description", Value: a.Resource.Environment.Name},
+					{Name: "Iniciado em", Value: a.Resource.Deployment.StartedOn.UTC().Format(time.RFC1123)},
+					{Name: "Finalizado em", Value: a.Resource.Deployment.CompletedOn.UTC().Format(time.RFC1123)},
 				},
 			},
 		},
