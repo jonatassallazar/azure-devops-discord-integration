@@ -32,7 +32,7 @@ func (a *AzureRequest) ConvertToDiscordPayloadPR(title string, color int32) Disc
 	return body
 }
 
-func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32) DiscordPayload {
+func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32, repository AzureRepository) DiscordPayload {
 	body := DiscordPayload{
 		Username:  "Azure Pipeline Build",
 		AvatarUrl: "",
@@ -50,6 +50,7 @@ func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32
 				Color:       color,
 				Fields: []Field{
 					{Name: "Pipeline", Value: a.Resource.Definition.Name},
+					{Name: "TriggeredBy", Value: repository.Name},
 					{Name: "Branch", Value: a.Resource.TriggerInfo.SourceBranch},
 					{Name: "Merge", Value: a.Resource.TriggerInfo.Message},
 				},

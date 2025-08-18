@@ -13,19 +13,27 @@ func (s *Server) SetupRouter() *gin.Engine {
 
 	r := gin.Default()
 
-	var p = controllers.PullRequestController{
+	var pr = controllers.PullRequestController{
 		ConfigServer: s.ConfigServer,
 	}
 
-	r.POST(controllers.CREATED_ROUTE, p.CreatedPR)
+	var pp = controllers.PipelineController{
+		ConfigServer: s.ConfigServer,
+	}
 
-	r.POST(controllers.REVIEW_ROUTE, p.ReviewedPR)
+	var re = controllers.ReleaseController{
+		ConfigServer: s.ConfigServer,
+	}
 
-	r.POST(controllers.STATUS_ROUTE, p.StatusUpdatedPR)
+	r.POST(controllers.CREATED_ROUTE, pr.CreatedPR)
 
-	r.POST(controllers.PIPELINE_ROUTE, p.PipelineStatusReport)
+	r.POST(controllers.REVIEW_ROUTE, pr.ReviewedPR)
 
-	r.POST(controllers.RELEASE_ROUTE, p.ReleaseStatusReport)
+	r.POST(controllers.STATUS_ROUTE, pr.StatusUpdatedPR)
+
+	r.POST(controllers.PIPELINE_ROUTE, pp.PipelineStatusReport)
+
+	r.POST(controllers.RELEASE_ROUTE, re.ReleaseStatusReport)
 
 	return r
 }

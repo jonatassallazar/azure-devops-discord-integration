@@ -13,6 +13,9 @@ type ConfigServer struct {
 	DiscordEnvPRUrl       string
 	DiscordEnvPipelineUrl string
 	DiscordEnvReleaseUrl  string
+	AzureOrganization     string
+	AzureProject          string
+	AzurePAT              string
 }
 
 func (c *ConfigServer) LoadEnvironment() error {
@@ -26,6 +29,9 @@ func (c *ConfigServer) LoadEnvironment() error {
 	c.DiscordEnvPRUrl = os.Getenv("DISCORD_PR_URL")
 	c.DiscordEnvPipelineUrl = os.Getenv("DISCORD_PIPELINE_URL")
 	c.DiscordEnvReleaseUrl = os.Getenv("DISCORD_RELEASE_URL")
+	c.AzureOrganization = os.Getenv("AZURE_ORGANIZATION")
+	c.AzureProject = os.Getenv("AZURE_PROJECT")
+	c.AzurePAT = os.Getenv("AZURE_PAT_TOKEN")
 
 	return nil
 }

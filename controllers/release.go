@@ -16,7 +16,7 @@ type ReleaseController struct {
 	Response     *models.AzureRequest
 }
 
-func (p *PullRequestController) ReleaseStatusReport(c *gin.Context) {
+func (p *ReleaseController) ReleaseStatusReport(c *gin.Context) {
 	err := c.ShouldBindJSON(&p.Response)
 	if err != nil {
 		fmt.Println(err)
@@ -56,7 +56,7 @@ func (p *PullRequestController) ReleaseStatusReport(c *gin.Context) {
 	c.JSON(http.StatusOK, p.Response)
 }
 
-func (p *PullRequestController) processReleaseStatus() (int32, string) {
+func (p *ReleaseController) processReleaseStatus() (int32, string) {
 	switch p.Response.Resource.Deployment.DeploymentStatus {
 	case "succeeded":
 		return models.GREEN, "Concluída"

@@ -266,3 +266,18 @@ type AzurePipeline struct {
 	ResourceContainers ResourceContainers `json:"resourceContainers"`
 	CreatedDate        time.Time          `json:"createdDate"`
 }
+
+type AzureRepository struct {
+	ID              string  `json:"id"`
+	Name            string  `json:"name"`
+	URL             string  `json:"url"`
+	Project         Project `json:"project"`
+	DefaultBranch   string  `json:"defaultBranch"`
+	Size            int64   `json:"size"`
+	RemoteURL       string  `json:"remoteUrl"`
+	SSHURL          string  `json:"sshUrl"`
+	WebURL          string  `json:"webUrl"`
+	Links           Links   `json:"_links"`
+	IsDisabled      bool    `json:"isDisabled"`
+	IsInMaintenance bool    `json:"isInMaintenance"`
+}

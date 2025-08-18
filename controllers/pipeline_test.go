@@ -64,7 +64,7 @@ func TestProcessStatus(t *testing.T) {
 	}
 
 	for _, a := range mockAzureResponse {
-		var pr = PullRequestController{
+		var pr = PipelineController{
 			Response: &a.AzureResponse,
 		}
 
