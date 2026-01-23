@@ -5,6 +5,23 @@ import (
 	"time"
 )
 
+// ConvertToDiscordPayloadPR converts an Azure DevOps pull request webhook payload
+// into a Discord webhook payload format.
+//
+// The method creates a Discord embed with:
+//   - Author information from the pull request creator
+//   - Title and URL linking to the pull request
+//   - Description showing the repository name
+//   - Color based on the provided color parameter
+//   - Fields containing pull request title and reviewer information
+//   - Footer showing the merge status
+//
+// Parameters:
+//   - title: The title to display in the Discord embed
+//   - color: The color code (int32) for the embed's left border
+//
+// Returns:
+//   - DiscordPayload: A formatted Discord webhook payload ready to be sent
 func (a *AzureRequest) ConvertToDiscordPayloadPR(title string, color int32) DiscordPayload {
 	body := DiscordPayload{
 		Username:  "Azure Pull Request",
@@ -32,6 +49,23 @@ func (a *AzureRequest) ConvertToDiscordPayloadPR(title string, color int32) Disc
 	return body
 }
 
+// ConvertToDiscordPayloadPipeline converts an Azure DevOps pipeline webhook payload
+// into a Discord webhook payload format.
+//
+// The method creates a Discord embed with:
+//   - Author information from the person who requested the pipeline
+//   - Title and URL linking to the pipeline build
+//   - Description showing the repository name
+//   - Color based on the provided color parameter
+//   - Fields containing pipeline name, repository name, branch, and commit message
+//
+// Parameters:
+//   - title: The title to display in the Discord embed
+//   - color: The color code (int32) for the embed's left border
+//   - repository: The Azure repository information fetched from the API
+//
+// Returns:
+//   - DiscordPayload: A formatted Discord webhook payload ready to be sent
 func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32, repository AzureRepository) DiscordPayload {
 	body := DiscordPayload{
 		Username:  "Azure Pipeline Build",
@@ -61,6 +95,22 @@ func (a *AzureRequest) ConvertToDiscordPayloadPipeline(title string, color int32
 	return body
 }
 
+// ConvertToDiscordPayloadRelease converts an Azure DevOps release webhook payload
+// into a Discord webhook payload format.
+//
+// The method creates a Discord embed with:
+//   - Author information from the person who requested the deployment
+//   - Title and URL linking to the release definition
+//   - Description showing the release name
+//   - Color based on the provided color parameter
+//   - Fields containing release number, environment description, start time, and completion time
+//
+// Parameters:
+//   - title: The title to display in the Discord embed
+//   - color: The color code (int32) for the embed's left border
+//
+// Returns:
+//   - DiscordPayload: A formatted Discord webhook payload ready to be sent
 func (a *AzureRequest) ConvertToDiscordPayloadRelease(title string, color int32) DiscordPayload {
 	body := DiscordPayload{
 		Username:  "Azure Release Build",
@@ -90,6 +140,14 @@ func (a *AzureRequest) ConvertToDiscordPayloadRelease(title string, color int32)
 	return body
 }
 
+// getFields generates a list of Discord embed fields from the pull request data.
+//
+// The method creates fields containing:
+//   - The pull request title
+//   - Each reviewer's name and their vote status (as inline fields)
+//
+// Returns:
+//   - []Field: A slice of Field structures ready to be used in a Discord embed
 func (a *AzureRequest) getFields() []Field {
 	fields := []Field{{Name: "Título", Value: a.Resource.Title}}
 
@@ -100,6 +158,18 @@ func (a *AzureRequest) getFields() []Field {
 	return fields
 }
 
+// getVoteText converts a reviewer's vote numeric value into a human-readable text string.
+//
+// Vote value mappings:
+//   - 10: "Aprovado" (Approved)
+//   - 5: "Aprovado com Sugestões" (Approved with Suggestions)
+//   - 0: "Sem Voto" (No Vote)
+//   - -5: "Aguardando o Autor" (Waiting for Author)
+//   - -10: "Rejeitado" (Rejected)
+//   - Any other value: Empty string
+//
+// Returns:
+//   - string: A text representation of the vote status
 func (r *Reviewers) getVoteText() string {
 	switch r.Vote {
 	case 10:
@@ -117,6 +187,18 @@ func (r *Reviewers) getVoteText() string {
 	}
 }
 
+// getMergeStatusText converts a pull request merge status into a human-readable text string.
+//
+// Merge status mappings:
+//   - "succeeded": "Sem conflito" (No conflicts)
+//   - "conflicts": "Com conflito" (Has conflicts)
+//   - "queued": "Aguardando" (Waiting)
+//   - "rejectedByPolicy": "Rejeitado pelas regras" (Rejected by policy)
+//   - "failure": "Com erros" (Has errors)
+//   - Any other status: Empty string
+//
+// Returns:
+//   - string: A text representation of the merge status
 func (a *AzureRequest) getMergeStatusText() string {
 	switch a.Resource.MergeStatus {
 	case "succeeded":
