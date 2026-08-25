@@ -1,4 +1,4 @@
-.PHONY: build run vet fmt test test-cover test-unit test-discord test-googlechat test-e2e
+.PHONY: build run vet fmt test test-cover test-unit test-discord test-googlechat test-e2e smoke-test
 
 build:
 	go build ./...
@@ -36,3 +36,10 @@ test-googlechat:
 # cmd/server's end-to-end route tests, exercising both sinks at once.
 test-e2e:
 	TEST_SINKS=both go test ./cmd/server/...
+
+# Real delivery smoke test: runs the actual server against your real .env
+# and POSTs a fake payload at it, so a configured webhook receives a real
+# message. Hits real network endpoints — run manually, not in CI.
+# Usage: make smoke-test [ROUTE=/pipeline/]
+smoke-test:
+	./scripts/smoke-test.sh $(ROUTE)
