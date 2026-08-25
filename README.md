@@ -58,30 +58,12 @@ docker-compose up -d
 
 ## ⚙️ Configuration
 
-Create a `.env` file in the project root with the following variables:
+Copy [`.env.example`](.env.example) to `.env` in the project root and fill in the values you
+need — it documents every supported variable with inline comments, so it's the fastest way to
+get onboarded:
 
-```env
-# Application environment (development, production, test)
-APP_ENV=development
-
-# Gin mode (debug, release, test)
-GIN_MODE=debug
-
-# Discord Webhook URLs
-DISCORD_PR_URL=https://discord.com/api/webhooks/your-pr-webhook
-DISCORD_PIPELINE_URL=https://discord.com/api/webhooks/your-pipeline-webhook
-DISCORD_RELEASE_URL=https://discord.com/api/webhooks/your-release-webhook
-
-# Google Chat Webhook URLs (optional - each is independently optional; a
-# blank/unset URL simply disables Google Chat for that event category)
-GOOGLE_CHAT_PR_URL=https://chat.googleapis.com/v1/spaces/your-space/messages?key=...&token=...
-GOOGLE_CHAT_PIPELINE_URL=https://chat.googleapis.com/v1/spaces/your-space/messages?key=...&token=...
-GOOGLE_CHAT_RELEASE_URL=https://chat.googleapis.com/v1/spaces/your-space/messages?key=...&token=...
-
-# Azure DevOps Configuration
-AZURE_ORGANIZATION=your-organization
-AZURE_PROJECT=your-project
-AZURE_PAT_TOKEN=your-personal-access-token
+```bash
+cp .env.example .env
 ```
 
 At least one webhook URL (Discord or Google Chat) should be set per event category you want
@@ -176,16 +158,34 @@ destination means implementing `notify.Sink` in a new package and wiring it into
 
 ## 🧪 Testing
 
-Run tests with:
+Run the full suite with:
 
 ```bash
 go test ./...
+# or: make test
 ```
 
 To run tests with coverage:
 
 ```bash
 go test -cover ./...
+# or: make test-cover
+```
+
+`cmd/server`'s tests are end-to-end: they spin up a local stub server and, by default, point
+both the Discord and Google Chat sinks (plus the Azure REST call) at it, so the suite runs
+fully offline with no manual env setup. Use `TEST_SINKS` to exercise just one destination:
+
+```bash
+TEST_SINKS=discord go test ./cmd/server/...    # or: make test-discord
+TEST_SINKS=googlechat go test ./cmd/server/... # or: make test-googlechat
+TEST_SINKS=both go test ./cmd/server/...       # or: make test-e2e (also the default)
+```
+
+`internal/azuredevops`'s tests are pure unit tests with no env or network dependency:
+
+```bash
+go test ./internal/azuredevops/...             # or: make test-unit
 ```
 
 ## 🐳 Docker

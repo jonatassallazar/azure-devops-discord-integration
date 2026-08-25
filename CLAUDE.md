@@ -206,37 +206,40 @@ never echo real webhook URLs or PAT values into logs, commits, or PR description
 
 ```bash
 go build ./...                        # compile
-go run ./cmd/server                    # run (needs a .env file present in cmd/server/, or cwd when built as a binary)
+go run ./cmd/server                    # run (needs a .env file present in the repo root — copy .env.example)
 go vet ./...
 gofmt -l .                             # should report nothing
 go test ./...                          # full suite
 go test -cover ./...
 go test ./internal/azuredevops/...     # unit tests only — no env or network needed
 docker compose up -d                   # container, host port 8080
+
+# cmd/server route tests, selecting which sink(s) get a configured webhook URL:
+TEST_SINKS=discord go test ./cmd/server/...     # Discord only
+TEST_SINKS=googlechat go test ./cmd/server/...  # Google Chat only
+TEST_SINKS=both go test ./cmd/server/...        # both (default when TEST_SINKS is unset)
 ```
+
+A `Makefile` wraps the commands above (`make build`, `make test`, `make test-unit`,
+`make test-discord`, `make test-googlechat`, `make test-e2e`, ...).
 
 ### Testing gotchas — read before running `go test ./...`
 
 - `./internal/azuredevops` tests are pure and always pass offline.
-- The **`cmd/server` package tests (`main_test.go`) are true end-to-end tests and make real
-  outbound HTTP requests**. They POST to whatever `DISCORD_*_URL`/`GOOGLE_CHAT_*_URL` point
-  at and (for the pipeline route) call `AZURE_ORGANIZATION`. With real webhook URLs
-  configured they will spam live Discord/Google Chat channels.
-- `prepareRouter()` ignores the error from `LoadEnvironment()` and `main_test.go` discards it
-  with `r, _ :=`. With **no `.env*` file present the engine is nil and the suite panics with a
-  nil-pointer dereference** in `gin.(*Engine).ServeHTTP` — that panic means "missing env
-  file", not a code regression. Remember `go test` runs with the package directory as its
-  working directory, so the `.env*` file needs to live in `cmd/server/`, not the repo root.
-- With env files present but unreachable URLs, `Dispatcher.Send` fails for every configured
-  sink and every route test fails on `400 != 200` (a partial failure — some sinks reachable,
-  some not — still replies `200`, so this only bites when *all* configured sinks for that
-  category are unreachable).
-- To run them safely, point the configured `*_URL` vars and `AZURE_ORGANIZATION` at a local
-  stub returning `200` (the pipeline route additionally needs a JSON body decodable into
-  `azuredevops.AzureRepository` for GET requests), e.g. via a `.env.test` file in
-  `cmd/server/` plus `APP_ENV=test`. Note that `TestConfigE2ETesting` sets `APP_ENV=test` and
-  unsets it on return, so the remaining tests in the file resolve under `development` — a
-  plain `.env` (the final, always-attempted fallback) covers both cases.
+- The **`cmd/server` package tests (`main_test.go`) are true end-to-end tests**, but they run
+  fully offline: `TestMain` spins up a local `httptest.Server` stub (answers every POST with
+  `200`, and every GET — the pipeline route's Azure REST call — with a JSON
+  `azuredevops.AzureRepository` body) and writes a scratch `.env` file in `cmd/server/`
+  pointing the sink(s) selected by `TEST_SINKS` (`discord` / `googlechat` / unset-or-`both`)
+  and `AZURE_ORGANIZATION` at it, restoring whatever `.env` was already there (or removing the
+  scratch one) once the suite finishes — see `writeTestEnv()` in `main_test.go`. No manual env
+  setup is required to run `go test ./...`.
+- `prepareRouter()` still discards the error from `LoadEnvironment()` with `r, _ :=` — a
+  `TestMain` that fails to write the scratch `.env` calls `os.Exit(1)` before any test runs,
+  rather than letting individual tests panic with a nil-pointer dereference.
+- `TestConfigE2ETesting` sets `APP_ENV=test` and unsets it on return, so the remaining tests in
+  the file resolve under `development` — `writeTestEnv()` writes a plain `.env` (the final,
+  always-attempted fallback per `config.Config.LoadEnvironment`), which covers both cases.
 - New fixtures for root tests go in `cmd/server/mocks_test.go` as `fakePayload*` vars.
 
 ## Known rough edges
