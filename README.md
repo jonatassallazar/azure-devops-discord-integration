@@ -1,19 +1,23 @@
 # Azure DevOps Discord Integration
 
-Integration between Azure DevOps and Discord that allows notifying a Discord server about important events that occur on the Azure DevOps platform, such as Pull Requests, Pipelines, and Releases.
+Integration between Azure DevOps and chat apps that notifies about important events on the
+Azure DevOps platform — Pull Requests, Pipelines, and Releases — via Discord and/or Google
+Chat incoming webhooks.
 
 ## 📋 Features
 
 - **Pull Requests**: Notifications about creation, reviews, and status changes
 - **Pipelines**: Notifications about pipeline execution status
 - **Releases**: Notifications about release status
+- **Multiple outbound destinations**: Discord and Google Chat can both be configured at once;
+  each event category (PR / pipeline / release) is delivered to whichever are set
 
 ## 🚀 Prerequisites
 
-- Go 1.17 or higher
+- Go 1.22 or higher
 - Docker and Docker Compose (optional, for container execution)
 - Azure DevOps account with appropriate permissions
-- Discord webhook configured
+- A Discord webhook and/or a Google Chat webhook configured
 
 ## 📦 Installation
 
@@ -34,7 +38,7 @@ go mod download
 
 4. Run the server:
 ```bash
-go run main.go
+go run ./cmd/server
 ```
 
 ### Docker Installation
@@ -68,20 +72,31 @@ DISCORD_PR_URL=https://discord.com/api/webhooks/your-pr-webhook
 DISCORD_PIPELINE_URL=https://discord.com/api/webhooks/your-pipeline-webhook
 DISCORD_RELEASE_URL=https://discord.com/api/webhooks/your-release-webhook
 
+# Google Chat Webhook URLs (optional - each is independently optional; a
+# blank/unset URL simply disables Google Chat for that event category)
+GOOGLE_CHAT_PR_URL=https://chat.googleapis.com/v1/spaces/your-space/messages?key=...&token=...
+GOOGLE_CHAT_PIPELINE_URL=https://chat.googleapis.com/v1/spaces/your-space/messages?key=...&token=...
+GOOGLE_CHAT_RELEASE_URL=https://chat.googleapis.com/v1/spaces/your-space/messages?key=...&token=...
+
 # Azure DevOps Configuration
 AZURE_ORGANIZATION=your-organization
 AZURE_PROJECT=your-project
 AZURE_PAT_TOKEN=your-personal-access-token
 ```
 
+At least one webhook URL (Discord or Google Chat) should be set per event category you want
+notifications for; both may be set to deliver to both destinations at once.
+
 ### Environment File Loading Order
 
-The system loads environment files in the following order (the last one has priority):
+The system loads environment files in the following order. Note that the **first file found
+wins** — dotenv loading does not override a variable that's already set, so if a variable
+appears in more than one file, the earliest file in this list takes priority:
 
-1. `.env`
-2. `.env.{APP_ENV}`
-3. `.env.local` (ignored if `APP_ENV=test`)
-4. `.env.{APP_ENV}.local`
+1. `.env.{APP_ENV}.local`
+2. `.env.local` (skipped entirely when `APP_ENV=test`)
+3. `.env.{APP_ENV}`
+4. `.env`
 
 ### How to Get Azure DevOps Personal Access Token (PAT)
 
@@ -98,6 +113,13 @@ The system loads environment files in the following order (the last one has prio
 3. Click on **New Webhook**
 4. Configure the name and channel
 5. Copy the webhook URL
+
+### How to Create Google Chat Webhooks
+
+1. Open the Google Chat space you want to notify
+2. Go to the space name menu > **Apps & integrations** > **Manage webhooks**
+3. Click **Add a webhook**, give it a name, and save
+4. Copy the generated webhook URL
 
 ## 🔌 Endpoints
 
@@ -134,14 +156,23 @@ To configure Service Hooks in Azure DevOps:
 
 ```
 azure-devops-discord-integration/
-├── config/           # Configuration and environment variable loading
-├── controllers/      # Controllers for each event type
-├── models/           # Data models (Azure DevOps and Discord)
-├── server/           # Server configuration and routes
-├── main.go          # Application entry point
-├── Dockerfile       # Docker build configuration
-└── docker-compose.yml # Docker Compose configuration
+├── cmd/server/                   # Application entry point (main.go)
+├── internal/
+│   ├── config/                   # Environment variable loading
+│   ├── azuredevops/              # Azure DevOps webhook handlers, models, event mapping
+│   ├── notify/                   # Vendor-neutral notification model + Sink interface + fan-out dispatcher
+│   │   ├── discord/              # Discord Sink implementation
+│   │   └── googlechat/           # Google Chat Sink implementation
+│   └── httpserver/               # gin server/router wiring
+├── Dockerfile                    # Docker build configuration
+└── docker-compose.yml            # Docker Compose configuration
 ```
+
+Inbound events come from Azure DevOps today (`internal/azuredevops`); outbound delivery goes
+through the `notify.Sink` interface, currently implemented by Discord and Google Chat
+(`internal/notify/discord`, `internal/notify/googlechat`). Adding another outbound
+destination means implementing `notify.Sink` in a new package and wiring it into
+`internal/httpserver/router.go` — no changes needed elsewhere.
 
 ## 🧪 Testing
 
@@ -179,13 +210,13 @@ docker run -d \
 
 ### Development Requirements
 
-- Go 1.17+
+- Go 1.22+
 - Testing tools (already included in dependencies)
 
 ### Run in Development Mode
 
 ```bash
-APP_ENV=development GIN_MODE=debug go run main.go
+APP_ENV=development GIN_MODE=debug go run ./cmd/server
 ```
 
 ## 🔒 Security

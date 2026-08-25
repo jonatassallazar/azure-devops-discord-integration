@@ -2,9 +2,6 @@ package main
 
 import (
 	"bytes"
-	config "discord-azure-integration/config"
-	"discord-azure-integration/controllers"
-	"discord-azure-integration/server"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,25 +9,24 @@ import (
 	"os"
 	"testing"
 
+	"azuredevops-notify/internal/azuredevops"
+	"azuredevops-notify/internal/config"
+	"azuredevops-notify/internal/httpserver"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func prepareRouter() (*gin.Engine, error) {
-	var c config.ConfigServer
+	var cfg config.Config
 
-	err := c.LoadEnvironment()
-	if err != nil {
+	if err := cfg.LoadEnvironment(); err != nil {
 		return nil, err
 	}
 
-	var s = server.Server{
-		ConfigServer: &c,
-	}
+	s := httpserver.Server{Config: &cfg}
 
-	r := s.SetupRouter()
-
-	return r, nil
+	return s.SetupRouter(), nil
 }
 
 func TestConfigE2ETesting(t *testing.T) {
@@ -45,14 +41,14 @@ func TestConfigE2ETesting(t *testing.T) {
 func TestCreateRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadCreatePR)
+	jsonData, err := json.Marshal(fakePayloadCreatePR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.CREATED_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteCreatedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -66,14 +62,14 @@ func TestCreateRequestRoute(t *testing.T) {
 func TestReviewApprovedRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadApprovedPR)
+	jsonData, err := json.Marshal(fakePayloadApprovedPR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteReviewedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -87,14 +83,14 @@ func TestReviewApprovedRequestRoute(t *testing.T) {
 func TestReviewRejectedRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadRejectedPR)
+	jsonData, err := json.Marshal(fakePayloadRejectedPR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteReviewedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -108,14 +104,14 @@ func TestReviewRejectedRequestRoute(t *testing.T) {
 func TestReviewNeutralRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadNeutralPR)
+	jsonData, err := json.Marshal(fakePayloadNeutralPR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteReviewedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -129,14 +125,14 @@ func TestReviewNeutralRequestRoute(t *testing.T) {
 func TestReviewWaitingForAuthorRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadWaitingPR)
+	jsonData, err := json.Marshal(fakePayloadWaitingPR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.REVIEW_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteReviewedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -150,14 +146,14 @@ func TestReviewWaitingForAuthorRequestRoute(t *testing.T) {
 func TestCompletedPullRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadCompletedPR)
+	jsonData, err := json.Marshal(fakePayloadCompletedPR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.STATUS_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteStatusUpdatedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -171,14 +167,14 @@ func TestCompletedPullRequestRoute(t *testing.T) {
 func TestConflictPullRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadConflictPR)
+	jsonData, err := json.Marshal(fakePayloadConflictPR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.STATUS_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteStatusUpdatedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -192,14 +188,14 @@ func TestConflictPullRequestRoute(t *testing.T) {
 func TestOrdinaryUpdatePullRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadOrdinaryUpdatePR)
+	jsonData, err := json.Marshal(fakePayloadOrdinaryUpdatePR)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.STATUS_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteStatusUpdatedPR, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -213,14 +209,14 @@ func TestOrdinaryUpdatePullRequestRoute(t *testing.T) {
 func TestPipelineRouteWithSuccessResultSucceeded(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadPipelineUpdateSucceeded)
+	jsonData, err := json.Marshal(fakePayloadPipelineUpdateSucceeded)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RoutePipeline, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -234,14 +230,14 @@ func TestPipelineRouteWithSuccessResultSucceeded(t *testing.T) {
 func TestPipelineRouteWithSuccessResultFailed(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadPipelineUpdateFailed)
+	jsonData, err := json.Marshal(fakePayloadPipelineUpdateFailed)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RoutePipeline, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -255,14 +251,14 @@ func TestPipelineRouteWithSuccessResultFailed(t *testing.T) {
 func TestPipelineRouteWithSuccessResultStopped(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadPipelineUpdateStopped)
+	jsonData, err := json.Marshal(fakePayloadPipelineUpdateStopped)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RoutePipeline, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -276,14 +272,14 @@ func TestPipelineRouteWithSuccessResultStopped(t *testing.T) {
 func TestPipelineRouteWithSuccessResultDefault(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadPipelineUpdateDefault)
+	jsonData, err := json.Marshal(fakePayloadPipelineUpdateDefault)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.PIPELINE_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RoutePipeline, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -297,14 +293,14 @@ func TestPipelineRouteWithSuccessResultDefault(t *testing.T) {
 func TestReleaseRouteWithSuccess(t *testing.T) {
 	r, _ := prepareRouter()
 
-	json_data, err := json.Marshal(fakePayloadReleaseSuccess)
+	jsonData, err := json.Marshal(fakePayloadReleaseSuccess)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, controllers.RELEASE_ROUTE, bytes.NewBuffer(json_data))
+	req, err := http.NewRequest(http.MethodPost, azuredevops.RouteRelease, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println(err)
 		return
