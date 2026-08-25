@@ -17,8 +17,7 @@ The service is stateless: no database, no queue, no auth on the inbound routes. 
 is parsed, translated into a vendor-neutral `notify.Message`, and fanned out to whichever
 sinks are configured for that event category.
 
-Go module name is `azuredevops-notify` (note: it differs from the repo directory name
-`azure-devops-discord-integration`, a pre-existing naming split). All internal imports use
+Go module name is `azuredevops-notify`, matching the repo name. All internal imports use
 the module path.
 
 ## Layout

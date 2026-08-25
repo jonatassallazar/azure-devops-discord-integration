@@ -1,4 +1,4 @@
-# Azure DevOps Discord Integration
+# Azure DevOps Notify
 
 Integration between Azure DevOps and chat apps that notifies about important events on the
 Azure DevOps platform — Pull Requests, Pipelines, and Releases — via Discord and/or Google
@@ -25,8 +25,8 @@ Chat incoming webhooks.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/azure-devops-discord-integration.git
-cd azure-devops-discord-integration
+git clone https://github.com/your-username/azuredevops-notify.git
+cd azuredevops-notify
 ```
 
 2. Install dependencies:
@@ -45,8 +45,8 @@ go run ./cmd/server
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/azure-devops-discord-integration.git
-cd azure-devops-discord-integration
+git clone https://github.com/your-username/azuredevops-notify.git
+cd azuredevops-notify
 ```
 
 2. Configure environment variables in `.env` or `.env.local` file
@@ -137,7 +137,7 @@ To configure Service Hooks in Azure DevOps:
 ## 🏗️ Project Structure
 
 ```
-azure-devops-discord-integration/
+azuredevops-notify/
 ├── cmd/server/                   # Application entry point (main.go)
 ├── internal/
 │   ├── config/                   # Environment variable loading
@@ -193,7 +193,7 @@ go test ./internal/azuredevops/...             # or: make test-unit
 ### Build Image
 
 ```bash
-docker build -t azure-devops-discord-integration .
+docker build -t azuredevops-notify .
 ```
 
 ### Run Container
@@ -202,8 +202,8 @@ docker build -t azure-devops-discord-integration .
 docker run -d \
   -p 8080:8080 \
   --env-file .env \
-  --name azure-devops-discord \
-  azure-devops-discord-integration
+  --name azuredevops-notify \
+  azuredevops-notify
 ```
 
 ## 📝 Development

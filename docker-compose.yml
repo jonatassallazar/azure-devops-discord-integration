@@ -4,7 +4,7 @@ services:
     build: 
      context: .
      dockerfile: Dockerfile
-    container_name: azure-devops-discord
+    container_name: azuredevops-notify
     ports:
       - 8080:8080
     networks:
