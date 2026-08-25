@@ -5,68 +5,94 @@ Guidance for AI assistants working in this repository.
 ## What this project is
 
 A small Go HTTP service that receives **Azure DevOps Service Hook** webhooks and forwards
-them to **Discord** as formatted webhook messages (embeds). It covers three event families:
-pull requests, pipeline (build) completions, and release deployments.
+them to one or more chat apps as formatted messages. It covers three event families: pull
+requests, pipeline (build) completions, and release deployments.
+
+Inbound (source of events) is Azure DevOps today; outbound delivery goes through a
+vendor-neutral `notify.Sink` interface, currently implemented by **Discord** and
+**Google Chat**. Either, both, or neither can be configured per event category — a category
+with no webhook URL set simply isn't notified for that destination.
 
 The service is stateless: no database, no queue, no auth on the inbound routes. Each request
-is parsed, translated into a Discord payload, and POSTed to the corresponding Discord webhook URL.
+is parsed, translated into a vendor-neutral `notify.Message`, and fanned out to whichever
+sinks are configured for that event category.
 
-Go module name is `discord-azure-integration` (note: it differs from the repo directory name
-`azure-devops-discord-integration`). All internal imports use that module path.
+Go module name is `azuredevops-notify` (note: it differs from the repo directory name
+`azure-devops-discord-integration`, a pre-existing naming split). All internal imports use
+the module path.
 
 ## Layout
 
 ```
-main.go              Entry point: load config -> build Server -> Init() (blocking)
-config/config.go     ConfigServer struct + .env loading + os.Getenv mapping
-server/server.go     Server struct, Init() -> SetupRouter() + r.Run()
-server/router.go     SetupRouter(): gin engine, controller wiring, route table
-controllers/
-  constants.go       Route path constants + HEADER_APP_JSON
-  pull-request.go    PullRequestController: CreatedPR, ReviewedPR, StatusUpdatedPR, processVotes
-  pipeline.go        PipelineController: PipelineStatusReport, processStatus, getRepository
-  release.go         ReleaseController: ReleaseStatusReport, processReleaseStatus
-  *_test.go          Unit tests for the pure process*() helpers (table-driven)
-models/
-  azure.go           Structs mirroring Azure DevOps webhook JSON (AzureRequest, Resource, ...)
-  discord.go         Discord webhook payload structs + color constants
-  utils.go           AzureRequest -> DiscordPayload converters + label helpers
-mocks.go             package main. Large fixtures (fakePayload*) used only by main_test.go
-main_test.go         End-to-end route tests via httptest + gin ServeHTTP
-Dockerfile           golang:1.16-alpine build, exposes 8080
-docker-compose.yml   Single `app` service, host port 8080
+cmd/server/
+  main.go                    Entry point: load config -> build httpserver.Server -> Init() (blocking)
+  main_test.go                 End-to-end route tests via httptest + gin ServeHTTP
+  mocks_test.go                 Fixtures (fakePayload*) used only by main_test.go (test-only, not shipped in the binary)
+
+internal/config/
+  config.go                    Config struct (nested Azure/Discord/GoogleChat) + .env loading + os.Getenv mapping
+
+internal/notify/
+  message.go                   Message, Author, Field, Level (vendor-neutral notification model)
+  sink.go                       Sink interface: Send(ctx, Message) error
+  dispatcher.go                 Dispatcher: fans one Message out to every Sink configured for an event category
+  discord/discord.go            Sink impl: Level -> Discord embed color, POSTs to a Discord incoming webhook
+  googlechat/googlechat.go      Sink impl: Level -> header indicator, POSTs a Cards v2 payload to a Google Chat incoming webhook
+
+internal/azuredevops/
+  routes.go                    Route path constants
+  models.go                     Structs mirroring Azure DevOps webhook JSON (AzureRequest, Resource, ...)
+  payload.go                    AzureRequest -> notify.Message converters + label helpers
+  errors.go                      Shared respondError() helper (DRYs the repeated bad-request response)
+  pullrequest.go / *_test.go     PullRequestHandler: CreatedPR, ReviewedPR, StatusUpdatedPR, processVotes
+  pipeline.go / *_test.go        PipelineHandler: PipelineStatusReport, processStatus, getRepository
+  release.go / *_test.go         ReleaseHandler: ReleaseStatusReport, processReleaseStatus
+
+internal/httpserver/
+  server.go                     Server struct, Init() -> SetupRouter() + r.Run()
+  router.go                      SetupRouter(): gin engine, handler + Dispatcher wiring, route table
+
+Dockerfile              Multi-stage build (golang:1.22-alpine -> alpine:3.19), exposes 8080
+docker-compose.yml      Single `app` service, host port 8080
 ```
 
 ## Request flow
 
 1. Azure DevOps POSTs a Service Hook payload to one of the routes.
-2. The controller does `c.ShouldBindJSON(&p.Response)` into its `*models.AzureRequest` field.
-3. A `process*()` helper maps an Azure status/vote to a `(color int32, title string)` pair.
-4. If `title == ""` the handler replies `204 No Content` and sends **nothing** to Discord —
-   this is the deliberate "uninteresting event" path (e.g. a PR update that is not
+2. The handler does `c.ShouldBindJSON(&req)` into a local `azuredevops.AzureRequest` — bound
+   into a request-scoped local variable, not a shared struct field (handlers hold only their
+   `*notify.Dispatcher`, so one handler instance safely serves concurrent requests).
+3. A `process*()` method on the handler maps an Azure status/vote to a `(notify.Level, string)`
+   pair.
+4. If `title == ""` the handler replies `204 No Content` and dispatches **nothing** — this is
+   the deliberate "uninteresting event" path (e.g. a PR update that is not
    completed/conflicts, or a review with only neutral votes).
-5. Otherwise `models.ConvertToDiscordPayload*()` builds the embed, it is marshalled and
-   POSTed to the configured Discord webhook URL.
-6. Success replies `200` echoing the parsed Azure payload; any error replies
-   `400` with `{"err": ...}` after `fmt.Println(err)`.
+5. Otherwise `AzureRequest.toPRMessage/toPipelineMessage/toReleaseMessage()` builds a
+   vendor-neutral `notify.Message`, and `Dispatcher.Send()` fans it out concurrently to every
+   configured sink (Discord and/or Google Chat) for that event category.
+6. Success replies `200` echoing the parsed Azure payload; a bind/marshal/all-sinks-failed
+   error replies `400` with `{"err": ...}` after `fmt.Println(err)`. A **partial** sink
+   failure (e.g. Discord ok, Google Chat down) is logged by the Dispatcher but still replies
+   `200` — a single outbound hiccup doesn't fail the inbound webhook.
 
-`PipelineStatusReport` additionally calls out to the **Azure DevOps REST API**
-(`GET {AZURE_ORGANIZATION}/{AZURE_PROJECT}/_apis/git/repositories/{id}?api-version=5.1`)
+`PipelineHandler.PipelineStatusReport` additionally calls out to the **Azure DevOps REST
+API** (`GET {AZURE_ORGANIZATION}/{AZURE_PROJECT}/_apis/git/repositories/{id}?api-version=5.1`)
 using Basic auth with a base64-encoded `":" + AZURE_PAT_TOKEN`, to resolve the triggering
 repository name from `resource.triggerInfo["ci.triggerRepository"]`.
 
 ## Routes
 
-Defined as constants in `controllers/constants.go` — **always reference the constants**,
-never hardcode path strings (tests depend on this).
+Defined as constants in `internal/azuredevops/routes.go` — **always reference the
+constants**, never hardcode path strings (tests depend on this). Route **paths are live
+Azure DevOps Service Hook URLs already configured in production — do not rename them**.
 
-| Constant | Path | Handler | Discord webhook used |
+| Constant | Path | Handler | Sinks used |
 |---|---|---|---|
-| `CREATED_ROUTE` | `POST /pull-request/created` | `PullRequestController.CreatedPR` | `DISCORD_PR_URL` |
-| `REVIEW_ROUTE` | `POST /pull-request/review` | `PullRequestController.ReviewedPR` | `DISCORD_PR_URL` |
-| `STATUS_ROUTE` | `POST /pull-request/status` | `PullRequestController.StatusUpdatedPR` | `DISCORD_PR_URL` |
-| `PIPELINE_ROUTE` | `POST /pipeline/` | `PipelineController.PipelineStatusReport` | `DISCORD_PIPELINE_URL` |
-| `RELEASE_ROUTE` | `POST /release/` | `ReleaseController.ReleaseStatusReport` | `DISCORD_RELEASE_URL` |
+| `RouteCreatedPR` | `POST /pull-request/created` | `PullRequestHandler.CreatedPR` | `Discord.PRWebhookURL`, `GoogleChat.PRWebhookURL` |
+| `RouteReviewedPR` | `POST /pull-request/review` | `PullRequestHandler.ReviewedPR` | same as above |
+| `RouteStatusUpdatedPR` | `POST /pull-request/status` | `PullRequestHandler.StatusUpdatedPR` | same as above |
+| `RoutePipeline` | `POST /pipeline/` | `PipelineHandler.PipelineStatusReport` | `Discord.PipelineWebhookURL`, `GoogleChat.PipelineWebhookURL` |
+| `RouteRelease` | `POST /release/` | `ReleaseHandler.ReleaseStatusReport` | `Discord.ReleaseWebhookURL`, `GoogleChat.ReleaseWebhookURL` |
 
 Note the trailing slash on `/pipeline/` and `/release/` — Azure hook URLs must match.
 
@@ -83,44 +109,71 @@ any rejection wins, then waiting, then approval:
 | `-5` | Waiting for author | `Aguardando o Autor` |
 | `-10` | Rejected | `Rejeitado` |
 
-PR status (`StatusUpdatedPR`): `completed` -> BLURPLE "Concluído", `conflicts` -> RED
-"com Conflito", anything else -> `204`.
+PR status (`StatusUpdatedPR`): `completed` -> `notify.LevelCompleted` "Concluído", `conflicts`
+-> `notify.LevelFailure` "com Conflito", anything else -> `204`.
 
 Pipeline `resource.result` and release `resource.deployment.deploymentStatus` share the same
-mapping: `succeeded` -> GREEN "Concluída", `failed` -> RED "Falhada", `stopped` -> ORANGE
-"Interrompida", default -> WHITE `[Status não mapeado: X]` (still notifies, on purpose).
+mapping: `succeeded` -> `LevelSuccess` "Concluída", `failed` -> `LevelFailure` "Falhada",
+`stopped` -> `LevelWarning` "Interrompida", default -> `LevelUnmapped`
+`[Status não mapeado: X]` (still notifies, on purpose).
+
+`notify.Level` is vendor-neutral; each sink privately maps it to its own visual language —
+Discord to an embed color int, Google Chat to a colored-circle indicator in the card header
+(Cards v2 has no per-card background color). See `internal/notify/discord/discord.go` and
+`internal/notify/googlechat/googlechat.go` for the exact mappings.
 
 Merge status labels live in `getMergeStatusText()` (`succeeded`, `conflicts`, `queued`,
 `rejectedByPolicy`, `failure`).
 
 ## Conventions
 
-- **Language split**: identifiers, comments and log output are English; user-facing Discord
-  strings (titles, field names, labels) are **Brazilian Portuguese**. Keep new Discord copy
-  in pt-BR to stay consistent.
-- **Controllers** are structs holding `ConfigServer *config.ConfigServer` and
-  `Response *models.AzureRequest`, instantiated once in `SetupRouter` and bound as method
-  handlers. Adding a feature means: new struct/method in `controllers/`, a route constant in
-  `constants.go`, and wiring in `SetupRouter`.
-- **Business logic goes in a pure `process*()` method** returning `(int32, string)` — that is
-  what the `controllers/*_test.go` table-driven tests exercise. Handlers stay thin (bind,
-  map, convert, POST, respond).
-- **Payload construction lives in `models/utils.go`** as methods on `*AzureRequest`
-  (`ConvertToDiscordPayloadPR/Pipeline/Release`). Do not build Discord JSON inside controllers.
-- **Colors** are the constants in `models/discord.go` (`GREEN`, `RED`, `ORANGE`, `YELLOW`,
-  `BLURPLE`, `WHITE`, `GRAY`, `BLACK`) — never raw ints.
-- **Error handling** is uniform and intentionally simple: `fmt.Println(err)` then
-  `c.JSON(http.StatusBadRequest, gin.H{"err": err})` and `return`. Match it rather than
-  introducing a logger or middleware unless asked.
-- Azure model structs are a permissive superset: `Resource` carries PR, build and release
-  fields together, so one `AzureRequest` type binds every hook. Add fields to the existing
-  structs rather than creating parallel types.
-- Formatting: standard `gofmt` (tabs). Run `gofmt -l .` before committing; note that
-  `mocks.go` is already unformatted on `main`, so ignore that one pre-existing hit.
+- **Language split**: identifiers, comments and log output are English; user-facing chat
+  strings (titles, field names, labels) are **Brazilian Portuguese**. Keep new copy in pt-BR
+  to stay consistent.
+- **Handlers** are structs holding only a `*notify.Dispatcher` (and, for
+  `PipelineHandler`, a `config.AzureConfig`), instantiated once in `SetupRouter` and bound as
+  method handlers. They hold **no per-request state** — the parsed request is always a local
+  variable inside the handler method, never a struct field. Adding a feature means: a new
+  struct/method in `internal/azuredevops/`, a route constant in `routes.go`, and wiring in
+  `internal/httpserver/router.go`.
+- **Business logic goes in a pure `process*()` method** taking the parsed `*AzureRequest` as
+  a parameter and returning `(notify.Level, string)` — that is what the
+  `internal/azuredevops/*_test.go` table-driven tests exercise. Handlers stay thin (bind, map,
+  convert to `notify.Message`, dispatch, respond).
+- **Message construction lives in `internal/azuredevops/payload.go`** as methods on
+  `*AzureRequest` (`toPRMessage`/`toPipelineMessage`/`toReleaseMessage`). Do not build
+  vendor-specific (Discord/Google Chat) JSON inside handlers — that belongs in the
+  respective `internal/notify/<vendor>` package, keyed off the vendor-neutral
+  `notify.Message`.
+- **Adding a new outbound sink** (e.g. Slack): implement `notify.Sink` in a new
+  `internal/notify/<vendor>` package (`Send(ctx, notify.Message) error`), add its webhook URL
+  field(s) to `config.Config`, and wire it into `buildDispatcher()` in
+  `internal/httpserver/router.go`. No changes needed to `internal/azuredevops` or to any
+  other sink.
+- **Adding a new inbound source** (e.g. GitHub): there is currently no `Source` interface —
+  with only one real source (Azure DevOps) so far, one hasn't been introduced to avoid
+  premature abstraction. Add a new `internal/<source>` package mirroring the shape of
+  `internal/azuredevops` (its own models, handlers, `process*()` methods building
+  `notify.Message`), with its own routes wired in `internal/httpserver/router.go`.
+- **Levels** are the constants in `internal/notify/message.go` (`LevelPending`,
+  `LevelSuccess`, `LevelFailure`, `LevelWarning`, `LevelCompleted`, `LevelUnmapped`) — never a
+  raw vendor color. Each sink owns its own Level→visual mapping privately.
+- **Error handling** for bind/marshal/dispatch failures is uniform and intentionally simple:
+  `internal/azuredevops/errors.go`'s `respondError()` does `fmt.Println(err)` then
+  `c.JSON(http.StatusBadRequest, gin.H{"err": err})`. This is a DRY helper for the repeated
+  block, not a logging framework or middleware — match it rather than introducing either
+  unless asked. `notify.Dispatcher` uses the stdlib `log` package (not a framework) to note a
+  *partial* sink failure that doesn't fail the whole request.
+- Azure model structs (`internal/azuredevops/models.go`) are a permissive superset:
+  `Resource` carries PR, build and release fields together, so one `AzureRequest` type binds
+  every hook. Add fields to the existing structs rather than creating parallel types.
+- Formatting: standard `gofmt` (tabs). Run `gofmt -l .` before committing — it should report
+  nothing (fixtures now live in `cmd/server/mocks_test.go`, a `_test.go` file, so they're
+  gofmt-checked like everything else and excluded from the production binary).
 
 ## Configuration
 
-`config.LoadEnvironment()` loads dotenv files then reads `os.Getenv`. Load order (later
+`config.Config.LoadEnvironment()` loads dotenv files then reads `os.Getenv`. Load order (later
 files do **not** override values already set — `godotenv.Load` is first-wins, so the first
 file listed effectively has priority):
 
@@ -131,71 +184,76 @@ file listed effectively has priority):
 
 `APP_ENV` defaults to `development`. **If none of the four files exists, `LoadEnvironment`
 returns `errors.New("no env file was loaded")`** and `main` exits — env vars alone are not
-enough, a file must exist.
+enough, a file must exist. Note dotenv files are resolved relative to the process's working
+directory, which for `go test` is the package directory (`cmd/server/`), not the repo root.
 
 | Variable | Purpose |
 |---|---|
 | `APP_ENV` | Selects the dotenv variant (`development` / `production` / `test`) |
 | `GIN_MODE` | Passed to `gin.SetMode` when non-empty (`debug` / `release` / `test`) |
-| `DISCORD_PR_URL` | Discord webhook for all three PR routes |
-| `DISCORD_PIPELINE_URL` | Discord webhook for `/pipeline/` |
-| `DISCORD_RELEASE_URL` | Discord webhook for `/release/` |
+| `DISCORD_PR_URL` / `DISCORD_PIPELINE_URL` / `DISCORD_RELEASE_URL` | Discord webhooks, one per event category (optional — unset disables Discord for that category) |
+| `GOOGLE_CHAT_PR_URL` / `GOOGLE_CHAT_PIPELINE_URL` / `GOOGLE_CHAT_RELEASE_URL` | Google Chat webhooks, one per event category (optional — unset disables Google Chat for that category) |
 | `AZURE_ORGANIZATION` | Base URL used to build the Azure REST call (used as a URL prefix, not a bare org name) |
 | `AZURE_PROJECT` | Project segment of the Azure REST call |
 | `AZURE_PAT_TOKEN` | PAT used for Basic auth against the Azure REST API |
 
-The listen address comes from gin's `r.Run()` default: `:8080`, overridable with the `PORT`
-env var. All `.env*` files are gitignored — never commit one, and never echo real webhook
-URLs or PAT values into logs, commits, or PR descriptions.
+At least one webhook URL (Discord and/or Google Chat) should be set per event category you
+want notifications for. The listen address comes from gin's `r.Run()` default: `:8080`,
+overridable with the `PORT` env var. All `.env*` files are gitignored — never commit one, and
+never echo real webhook URLs or PAT values into logs, commits, or PR descriptions.
 
 ## Build, run, test
 
 ```bash
-go build ./...                 # compile
-go run main.go                 # run (needs a .env file present)
+go build ./...                        # compile
+go run ./cmd/server                    # run (needs a .env file present in cmd/server/, or cwd when built as a binary)
 go vet ./...
-gofmt -l .                     # currently reports mocks.go (pre-existing)
-go test ./...                  # full suite
+gofmt -l .                             # should report nothing
+go test ./...                          # full suite
 go test -cover ./...
-go test ./controllers/...      # unit tests only — no env or network needed
-docker compose up -d           # container, host port 8080
+go test ./internal/azuredevops/...     # unit tests only — no env or network needed
+docker compose up -d                   # container, host port 8080
 ```
 
 ### Testing gotchas — read before running `go test ./...`
 
-- `./controllers` tests are pure and always pass offline.
-- The **root package tests (`main_test.go`) are true end-to-end tests and make real outbound
-  HTTP requests**. They POST to whatever `DISCORD_*_URL` points at and (for the pipeline
-  route) call `AZURE_ORGANIZATION`. With real webhook URLs configured they will spam a live
-  Discord channel.
+- `./internal/azuredevops` tests are pure and always pass offline.
+- The **`cmd/server` package tests (`main_test.go`) are true end-to-end tests and make real
+  outbound HTTP requests**. They POST to whatever `DISCORD_*_URL`/`GOOGLE_CHAT_*_URL` point
+  at and (for the pipeline route) call `AZURE_ORGANIZATION`. With real webhook URLs
+  configured they will spam live Discord/Google Chat channels.
 - `prepareRouter()` ignores the error from `LoadEnvironment()` and `main_test.go` discards it
   with `r, _ :=`. With **no `.env*` file present the engine is nil and the suite panics with a
   nil-pointer dereference** in `gin.(*Engine).ServeHTTP` — that panic means "missing env
-  file", not a code regression.
-- With env files present but unreachable URLs, the handlers' `http.Post` fails and every
-  route test fails on `400 != 200`.
-- To run them safely, point the three `DISCORD_*_URL` vars and `AZURE_ORGANIZATION` at a local
-  stub returning `200` (the pipeline route needs a JSON body decodable into
-  `models.AzureRepository`), e.g. via a `.env.test` file plus `APP_ENV=test`. Note that
-  `TestConfigE2ETesting` sets `APP_ENV=test` and unsets it on return, so the remaining tests
-  in the file resolve under `development`.
-- New fixtures for root tests go in `mocks.go` as `fakePayload*` vars (it is `package main`,
-  not a `_test.go` file, so it is compiled into the binary too).
+  file", not a code regression. Remember `go test` runs with the package directory as its
+  working directory, so the `.env*` file needs to live in `cmd/server/`, not the repo root.
+- With env files present but unreachable URLs, `Dispatcher.Send` fails for every configured
+  sink and every route test fails on `400 != 200` (a partial failure — some sinks reachable,
+  some not — still replies `200`, so this only bites when *all* configured sinks for that
+  category are unreachable).
+- To run them safely, point the configured `*_URL` vars and `AZURE_ORGANIZATION` at a local
+  stub returning `200` (the pipeline route additionally needs a JSON body decodable into
+  `azuredevops.AzureRepository` for GET requests), e.g. via a `.env.test` file in
+  `cmd/server/` plus `APP_ENV=test`. Note that `TestConfigE2ETesting` sets `APP_ENV=test` and
+  unsets it on return, so the remaining tests in the file resolve under `development` — a
+  plain `.env` (the final, always-attempted fallback) covers both cases.
+- New fixtures for root tests go in `cmd/server/mocks_test.go` as `fakePayload*` vars.
 
 ## Known rough edges
 
 Do not "fix" these silently as part of an unrelated change; flag them or fix them deliberately.
 
-- `Dockerfile` pins `golang:1.16-alpine` while `go.mod` declares `go 1.17`.
-- Controllers store the bound payload in a **shared struct field** (`Response`), and each
-  controller instance is shared across all requests — concurrent webhooks can interleave.
-  Any refactor toward per-request locals is a behavioural improvement, not a no-op.
-- Response bodies from the Discord `http.Post` calls are never read or closed, and a non-2xx
-  Discord response is treated as success.
-- `models.AzurePipeline` is only used by test fixtures; the live routes bind `AzureRequest`.
-- Inbound routes are unauthenticated — anyone who can reach the port can post to the Discord
-  channels.
+- `models.AzurePipeline` (now `azuredevops.AzurePipeline`) is only used by test fixtures; the
+  live routes bind `AzureRequest`.
+- Response bodies from sink HTTP POSTs *are* now read and closed, and a non-2xx response *is*
+  now treated as an error (fixed deliberately as part of the multi-vendor rewrite — previously
+  neither was true).
+- Inbound routes are unauthenticated — anyone who can reach the port can post notifications to
+  the configured Discord/Google Chat destinations.
 - There is no CI workflow in this repo; checks are local only.
+- There is intentionally no `Source` interface for inbound events (see "Adding a new inbound
+  source" above) — only add one when a second real source (e.g. GitHub) is actually being
+  built, not speculatively.
 
 ## Git workflow
 

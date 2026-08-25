@@ -1,13 +1,13 @@
 package main
 
 import (
-	models "discord-azure-integration/models"
+	azdo "azuredevops-notify/internal/azuredevops"
 	"time"
 )
 
 var fakeTime = time.Now().UTC()
 
-var project = models.Project{
+var project = azdo.Project{
 	ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 	Name:           "Sample Project",
 	Description:    "Sample team repository.",
@@ -18,20 +18,20 @@ var project = models.Project{
 	LastUpdateTime: fakeTime,
 }
 
-var fakePayloadCreatePR = models.AzureRequest{
+var fakePayloadCreatePR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -46,7 +46,7 @@ var fakePayloadCreatePR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "active",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -61,22 +61,22 @@ var fakePayloadCreatePR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -84,7 +84,7 @@ var fakePayloadCreatePR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers:          []models.Reviewers{},
+		Reviewers:          []azdo.Reviewers{},
 		Url:                "https://",
 		SupportsIterations: true,
 		ArtifactId:         "",
@@ -93,20 +93,20 @@ var fakePayloadCreatePR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadApprovedPR = models.AzureRequest{
+var fakePayloadApprovedPR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -121,7 +121,7 @@ var fakePayloadApprovedPR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "active",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -136,22 +136,22 @@ var fakePayloadApprovedPR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -159,7 +159,7 @@ var fakePayloadApprovedPR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        10,
@@ -189,20 +189,20 @@ var fakePayloadApprovedPR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadRejectedPR = models.AzureRequest{
+var fakePayloadRejectedPR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -217,7 +217,7 @@ var fakePayloadRejectedPR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "active",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -232,22 +232,22 @@ var fakePayloadRejectedPR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -255,7 +255,7 @@ var fakePayloadRejectedPR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        -10,
@@ -285,20 +285,20 @@ var fakePayloadRejectedPR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadNeutralPR = models.AzureRequest{
+var fakePayloadNeutralPR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -313,7 +313,7 @@ var fakePayloadNeutralPR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "active",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -328,22 +328,22 @@ var fakePayloadNeutralPR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -351,7 +351,7 @@ var fakePayloadNeutralPR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        0,
@@ -381,20 +381,20 @@ var fakePayloadNeutralPR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadWaitingPR = models.AzureRequest{
+var fakePayloadWaitingPR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -409,7 +409,7 @@ var fakePayloadWaitingPR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "active",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -424,22 +424,22 @@ var fakePayloadWaitingPR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -447,7 +447,7 @@ var fakePayloadWaitingPR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        0,
@@ -477,20 +477,20 @@ var fakePayloadWaitingPR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadCompletedPR = models.AzureRequest{
+var fakePayloadCompletedPR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -505,7 +505,7 @@ var fakePayloadCompletedPR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "completed",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -520,22 +520,22 @@ var fakePayloadCompletedPR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -543,7 +543,7 @@ var fakePayloadCompletedPR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        10,
@@ -573,20 +573,20 @@ var fakePayloadCompletedPR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadConflictPR = models.AzureRequest{
+var fakePayloadConflictPR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -601,7 +601,7 @@ var fakePayloadConflictPR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "conflicts",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -616,22 +616,22 @@ var fakePayloadConflictPR = models.AzureRequest{
 		MergeStatus:   "Conflicts",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -639,7 +639,7 @@ var fakePayloadConflictPR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        10,
@@ -669,20 +669,20 @@ var fakePayloadConflictPR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadOrdinaryUpdatePR = models.AzureRequest{
+var fakePayloadOrdinaryUpdatePR = azdo.AzureRequest{
 	SubscriptionId: "2f5389a6-c75a-4048-8eba-33c0767d9ad6",
 	NotificationId: 1094,
 	ID:             "1c75aaf4-a8de-4748-835b-8bf7964ac0fa",
 	EventType:      "git.pullrequest.created",
 	PublisherId:    "tfs",
-	Message: models.Text{
+	Message: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	DetailedMessage: models.Text{
+	DetailedMessage: azdo.Text{
 		Text: "Alex Smith created pull request 18111209 (branch > release) in repository",
 	},
-	Resource: models.Resource{
-		Repository: models.Repository{
+	Resource: azdo.Resource{
+		Repository: azdo.Repository{
 			ID:              "0f8a3f57-0bed-4451-86df-09d919e0d169",
 			Name:            "repository_name",
 			Url:             "https://azure.com/",
@@ -697,7 +697,7 @@ var fakePayloadOrdinaryUpdatePR = models.AzureRequest{
 		PullRequestId: 12333,
 		CodeReviewId:  4123123,
 		Status:        "active",
-		CreatedBy: models.CreatedBy{
+		CreatedBy: azdo.CreatedBy{
 			DisplayName: "Alex Smith",
 			Url:         "https://devops.example.com/",
 			ID:          "a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
@@ -712,22 +712,22 @@ var fakePayloadOrdinaryUpdatePR = models.AzureRequest{
 		MergeStatus:   "succeeded",
 		IsDraft:       false,
 		MergeID:       "9634d63f-a0ab-49de-8767-52e80ac18240",
-		LastMergeSourceCommit: models.MergeCommit{
+		LastMergeSourceCommit: azdo.MergeCommit{
 			CommitID: "d123faSsf2as1dfb234khb34kjb14",
 			Url:      "https://",
 		},
-		LastMergeTargetCommit: models.MergeCommit{
+		LastMergeTargetCommit: azdo.MergeCommit{
 			CommitID: "1h3hl41bl4hjb1l2j4hbl12j4hb123",
 			Url:      "https://",
 		},
-		LastMergeCommit: models.MergeCommit{
+		LastMergeCommit: azdo.MergeCommit{
 			CommitID: "fds1234ufhXCsd2f76g9sdfCy1n3nh7bdc7208d3",
-			Author: models.UserAuthor{
+			Author: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
 			},
-			Committer: models.UserAuthor{
+			Committer: azdo.UserAuthor{
 				Name:  "Alex Smith",
 				Email: "alex.smith@example.com",
 				Date:  fakeTime,
@@ -735,7 +735,7 @@ var fakePayloadOrdinaryUpdatePR = models.AzureRequest{
 			Comment: "Merge pull request 1312312 from feature into release",
 			Url:     "https://",
 		},
-		Reviewers: []models.Reviewers{
+		Reviewers: []azdo.Reviewers{
 			{
 				ID:          "fakeID",
 				Vote:        10,
@@ -765,41 +765,41 @@ var fakePayloadOrdinaryUpdatePR = models.AzureRequest{
 	CreatedDate:     fakeTime,
 }
 
-var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
+var fakePayloadPipelineUpdateSucceeded = azdo.AzurePipeline{
 	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
 	NotificationId: 2,
 	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
 	EventType:      "build.complete",
 	PublisherId:    "tfs",
-	Message: models.Message{
+	Message: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	DetailedMessage: models.Message{
+	DetailedMessage: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	Resource: models.Resource{
-		Links: models.Links{
-			Self: models.LinkHref{
+	Resource: azdo.Resource{
+		Links: azdo.Links{
+			Self: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
 			},
-			Web: models.LinkHref{
+			Web: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
 			},
-			SourceVersionDisplayUri: models.LinkHref{
+			SourceVersionDisplayUri: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
 			},
-			Timeline: models.LinkHref{
+			Timeline: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
 			},
-			Badge: models.LinkHref{
+			Badge: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
 			},
 		},
-		TriggerInfo: models.TriggerInfo{
+		TriggerInfo: azdo.TriggerInfo{
 			SourceBranch:      "refs/heads/staging",
 			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
 			Message:           "Merge branch 'feature/add-new-feature' into staging",
@@ -813,7 +813,7 @@ var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
 		StartTime:   fakeTime,
 		FinishTime:  fakeTime,
 		Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
-		Definition: models.Definition{
+		Definition: azdo.Definition{
 			ID:          7756,
 			Name:        "sample-service-staging",
 			Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
@@ -821,7 +821,7 @@ var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
 			Type:        "build",
 			QueueStatus: "enabled",
 			Revision:    2,
-			Project: models.Project{
+			Project: azdo.Project{
 				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 				Name:           "Sample Project",
 				Description:    "Sample team repository.",
@@ -832,7 +832,7 @@ var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
 				LastUpdateTime: fakeTime,
 			},
 		},
-		Project: models.Project{
+		Project: azdo.Project{
 			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 			Name:           "Sample Project",
 			Description:    "Sample team repository.",
@@ -843,11 +843,11 @@ var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
 			LastUpdateTime: fakeTime,
 		},
 		Uri: "vstfs:///Build/Build/1809692",
-		RequestedFor: models.RequestedFor{
+		RequestedFor: azdo.RequestedFor{
 			DisplayName: "David Martinez",
 			Url:         "https://devops.example.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			Links: models.Links{
-				Avatar: models.LinkHref{
+			Links: azdo.Links{
+				Avatar: azdo.LinkHref{
 					Href: "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 				},
 			},
@@ -855,7 +855,7 @@ var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
 			UniqueName: "david.martinez@example.com",
 			ImageUrl:   "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 		},
-		Repository: models.Repository{
+		Repository: azdo.Repository{
 			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
 			Name: "sample-service",
 			Url:  "https://devops.example.com/SampleProject/_git/sample-service",
@@ -864,41 +864,41 @@ var fakePayloadPipelineUpdateSucceeded = models.AzurePipeline{
 	CreatedDate: fakeTime,
 }
 
-var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
+var fakePayloadPipelineUpdateFailed = azdo.AzurePipeline{
 	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
 	NotificationId: 2,
 	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
 	EventType:      "build.complete",
 	PublisherId:    "tfs",
-	Message: models.Message{
+	Message: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	DetailedMessage: models.Message{
+	DetailedMessage: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	Resource: models.Resource{
-		Links: models.Links{
-			Self: models.LinkHref{
+	Resource: azdo.Resource{
+		Links: azdo.Links{
+			Self: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
 			},
-			Web: models.LinkHref{
+			Web: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
 			},
-			SourceVersionDisplayUri: models.LinkHref{
+			SourceVersionDisplayUri: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
 			},
-			Timeline: models.LinkHref{
+			Timeline: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
 			},
-			Badge: models.LinkHref{
+			Badge: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
 			},
 		},
-		TriggerInfo: models.TriggerInfo{
+		TriggerInfo: azdo.TriggerInfo{
 			SourceBranch:      "refs/heads/staging",
 			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
 			Message:           "Merge branch 'feature/add-new-feature' into staging",
@@ -912,7 +912,7 @@ var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
 		StartTime:   fakeTime,
 		FinishTime:  fakeTime,
 		Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
-		Definition: models.Definition{
+		Definition: azdo.Definition{
 			ID:          7756,
 			Name:        "sample-service-staging",
 			Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
@@ -920,7 +920,7 @@ var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
 			Type:        "build",
 			QueueStatus: "enabled",
 			Revision:    2,
-			Project: models.Project{
+			Project: azdo.Project{
 				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 				Name:           "Sample Project",
 				Description:    "Sample team repository.",
@@ -931,7 +931,7 @@ var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
 				LastUpdateTime: fakeTime,
 			},
 		},
-		Project: models.Project{
+		Project: azdo.Project{
 			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 			Name:           "Sample Project",
 			Description:    "Sample team repository.",
@@ -942,11 +942,11 @@ var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
 			LastUpdateTime: fakeTime,
 		},
 		Uri: "vstfs:///Build/Build/1809692",
-		RequestedFor: models.RequestedFor{
+		RequestedFor: azdo.RequestedFor{
 			DisplayName: "David Martinez",
 			Url:         "https://devops.example.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			Links: models.Links{
-				Avatar: models.LinkHref{
+			Links: azdo.Links{
+				Avatar: azdo.LinkHref{
 					Href: "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 				},
 			},
@@ -954,7 +954,7 @@ var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
 			UniqueName: "david.martinez@example.com",
 			ImageUrl:   "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 		},
-		Repository: models.Repository{
+		Repository: azdo.Repository{
 			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
 			Name: "sample-service",
 			Url:  "https://devops.example.com/SampleProject/_git/sample-service",
@@ -963,41 +963,41 @@ var fakePayloadPipelineUpdateFailed = models.AzurePipeline{
 	CreatedDate: fakeTime,
 }
 
-var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
+var fakePayloadPipelineUpdateStopped = azdo.AzurePipeline{
 	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
 	NotificationId: 2,
 	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
 	EventType:      "build.complete",
 	PublisherId:    "tfs",
-	Message: models.Message{
+	Message: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	DetailedMessage: models.Message{
+	DetailedMessage: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	Resource: models.Resource{
-		Links: models.Links{
-			Self: models.LinkHref{
+	Resource: azdo.Resource{
+		Links: azdo.Links{
+			Self: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
 			},
-			Web: models.LinkHref{
+			Web: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
 			},
-			SourceVersionDisplayUri: models.LinkHref{
+			SourceVersionDisplayUri: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
 			},
-			Timeline: models.LinkHref{
+			Timeline: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
 			},
-			Badge: models.LinkHref{
+			Badge: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
 			},
 		},
-		TriggerInfo: models.TriggerInfo{
+		TriggerInfo: azdo.TriggerInfo{
 			SourceBranch:      "refs/heads/staging",
 			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
 			Message:           "Merge branch 'feature/add-new-feature' into staging",
@@ -1011,7 +1011,7 @@ var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
 		StartTime:   fakeTime,
 		FinishTime:  fakeTime,
 		Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
-		Definition: models.Definition{
+		Definition: azdo.Definition{
 			ID:          7756,
 			Name:        "sample-service-staging",
 			Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
@@ -1019,7 +1019,7 @@ var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
 			Type:        "build",
 			QueueStatus: "enabled",
 			Revision:    2,
-			Project: models.Project{
+			Project: azdo.Project{
 				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 				Name:           "Sample Project",
 				Description:    "Sample team repository.",
@@ -1030,7 +1030,7 @@ var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
 				LastUpdateTime: fakeTime,
 			},
 		},
-		Project: models.Project{
+		Project: azdo.Project{
 			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 			Name:           "Sample Project",
 			Description:    "Sample team repository.",
@@ -1041,11 +1041,11 @@ var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
 			LastUpdateTime: fakeTime,
 		},
 		Uri: "vstfs:///Build/Build/1809692",
-		RequestedFor: models.RequestedFor{
+		RequestedFor: azdo.RequestedFor{
 			DisplayName: "David Martinez",
 			Url:         "https://devops.example.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			Links: models.Links{
-				Avatar: models.LinkHref{
+			Links: azdo.Links{
+				Avatar: azdo.LinkHref{
 					Href: "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 				},
 			},
@@ -1053,7 +1053,7 @@ var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
 			UniqueName: "david.martinez@example.com",
 			ImageUrl:   "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 		},
-		Repository: models.Repository{
+		Repository: azdo.Repository{
 			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
 			Name: "sample-service",
 			Url:  "https://devops.example.com/SampleProject/_git/sample-service",
@@ -1062,41 +1062,41 @@ var fakePayloadPipelineUpdateStopped = models.AzurePipeline{
 	CreatedDate: fakeTime,
 }
 
-var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
+var fakePayloadPipelineUpdateDefault = azdo.AzurePipeline{
 	SubscriptionId: "face7c3a-73ba-4ab8-a7f2-3d06da4b6b76",
 	NotificationId: 2,
 	ID:             "8d675cc3-96ee-4b3a-a7d3-0cbc1c548387",
 	EventType:      "build.complete",
 	PublisherId:    "tfs",
-	Message: models.Message{
+	Message: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	DetailedMessage: models.Message{
+	DetailedMessage: azdo.Message{
 		Text:     "Build 20231212.2 succeeded",
 		Html:     "Build <a href=\"https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&amp;builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692\">20231212.2</a> succeeded",
 		Markdown: "Build [20231212.2](https://devops.example.com/web/build.aspx?pcguid=9482681b-1f8d-43f3-a7fd-84a89ac10fc9&builduri=vstfs%3a%2f%2f%2fBuild%2fBuild%2f1809692) succeeded",
 	},
-	Resource: models.Resource{
-		Links: models.Links{
-			Self: models.LinkHref{
+	Resource: azdo.Resource{
+		Links: azdo.Links{
+			Self: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
 			},
-			Web: models.LinkHref{
+			Web: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_build/results?buildId=1809692",
 			},
-			SourceVersionDisplayUri: models.LinkHref{
+			SourceVersionDisplayUri: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/sources",
 			},
-			Timeline: models.LinkHref{
+			Timeline: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/builds/1809692/Timeline",
 			},
-			Badge: models.LinkHref{
+			Badge: azdo.LinkHref{
 				Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/status/7756",
 			},
 		},
-		TriggerInfo: models.TriggerInfo{
+		TriggerInfo: azdo.TriggerInfo{
 			SourceBranch:      "refs/heads/staging",
 			SourceSha:         "b3ba205283e83517606e38602f76fadb3bdda522",
 			Message:           "Merge branch 'feature/add-new-feature' into staging",
@@ -1110,7 +1110,7 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 		StartTime:   fakeTime,
 		FinishTime:  fakeTime,
 		Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Builds/1809692",
-		Definition: models.Definition{
+		Definition: azdo.Definition{
 			ID:          7756,
 			Name:        "sample-service-staging",
 			Url:         "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/build/Definitions/7756?revision=2",
@@ -1118,7 +1118,7 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 			Type:        "build",
 			QueueStatus: "enabled",
 			Revision:    2,
-			Project: models.Project{
+			Project: azdo.Project{
 				ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 				Name:           "Sample Project",
 				Description:    "Sample team repository.",
@@ -1129,7 +1129,7 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 				LastUpdateTime: fakeTime,
 			},
 		},
-		Project: models.Project{
+		Project: azdo.Project{
 			ID:             "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 			Name:           "Sample Project",
 			Description:    "Sample team repository.",
@@ -1140,11 +1140,11 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 			LastUpdateTime: fakeTime,
 		},
 		Uri: "vstfs:///Build/Build/1809692",
-		RequestedFor: models.RequestedFor{
+		RequestedFor: azdo.RequestedFor{
 			DisplayName: "David Martinez",
 			Url:         "https://devops.example.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/a4dd11b6-b7bc-64e7-8a8e-1617179bef68",
-			Links: models.Links{
-				Avatar: models.LinkHref{
+			Links: azdo.Links{
+				Avatar: azdo.LinkHref{
 					Href: "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 				},
 			},
@@ -1152,7 +1152,7 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 			UniqueName: "david.martinez@example.com",
 			ImageUrl:   "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.YTRkZDExYjYtYjdiYy03NGU3LThhOGUtMTYxNzE3OWJlZjY4",
 		},
-		Repository: models.Repository{
+		Repository: azdo.Repository{
 			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
 			Name: "sample-service",
 			Url:  "https://devops.example.com/SampleProject/_git/sample-service",
@@ -1161,61 +1161,61 @@ var fakePayloadPipelineUpdateDefault = models.AzurePipeline{
 	CreatedDate: fakeTime,
 }
 
-var fakePayloadReleaseSuccess = models.AzurePipeline{
+var fakePayloadReleaseSuccess = azdo.AzurePipeline{
 	SubscriptionId: "a2346054-e9af-491c-9273-fe07c3bffa01",
 	NotificationId: 1,
 	ID:             "7ae37a82-9be5-4906-82fb-6a796ad95cac",
 	EventType:      "ms.vss-release.deployment-completed-event",
 	PublisherId:    "rm",
-	Message: models.Message{
+	Message: azdo.Message{
 		Text:     "Deployment of release Release-62 on stage deploy staging server succeeded.",
 		Html:     "Deployment on stage <a href='https://devops.example.com/SampleProject/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67'>deploy staging server</a> succeeded.",
 		Markdown: "Deployment on stage [deploy staging server](https://devops.example.com/SampleProject/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67) succeeded.",
 	},
-	DetailedMessage: models.Message{
+	DetailedMessage: azdo.Message{
 		Text:     "Deployment of release Release-62 on stage deploy staging server succeeded. Time to deploy: 00:03:07.",
 		Html:     "Deployment on stage <a href='https://devops.example.com/SampleProject/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67'>deploy staging server</a> succeeded. Time to deploy: 00:03:07.",
 		Markdown: "Deployment on stage [deploy staging server](https://devops.example.com/SampleProject/_release?_a=environment-summary&definitionId=35&definitionEnvironmentId=67) succeeded. Time to deploy: 00:03:07.",
 	},
-	Resource: models.Resource{
-		Environment: models.Environment{
+	Resource: azdo.Resource{
+		Environment: azdo.Environment{
 			ID:         15999,
 			ReleaseID:  7269,
 			Name:       "deploy staging server",
 			Status:     "succeeded",
 			CreatedOn:  fakeTime,
 			ModifiedOn: fakeTime,
-			Release: models.Release{
+			Release: azdo.Release{
 				ID:   7269,
 				Name: "Release-62",
 				Url:  "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/releases/7269",
-				Links: models.Links{
-					Web: models.LinkHref{
+				Links: azdo.Links{
+					Web: azdo.LinkHref{
 						Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_release?releaseId=7269&_a=release-summary",
 					},
-					Self: models.LinkHref{
+					Self: azdo.LinkHref{
 						Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/releases/7269",
 					},
 				},
 			},
-			ReleaseDefinition: models.Release{
+			ReleaseDefinition: azdo.Release{
 				ID:   35,
 				Name: "sample api staging",
 				Url:  "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/definitions/35",
-				Links: models.Links{
-					Web: models.LinkHref{
+				Links: azdo.Links{
+					Web: azdo.LinkHref{
 						Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_release?definitionId=35",
 					},
-					Self: models.LinkHref{
+					Self: azdo.LinkHref{
 						Href: "https://devops.example.com/a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9/_apis/Release/definitions/35",
 					},
 				},
 			},
-			ReleaseCreatedBy: models.RequestedFor{
+			ReleaseCreatedBy: azdo.RequestedFor{
 				DisplayName: "Emily Chen",
 				Url:         "https://devops.example.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/0f5c62b4-a018-636c-a082-a76705f2f2cb",
-				Links: models.Links{
-					Avatar: models.LinkHref{
+				Links: azdo.Links{
+					Avatar: azdo.LinkHref{
 						Href: "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.MGY1YzYyYjQtYTAxOC03MzZjLWEwODItYTc2NzA1ZjJmMmNi",
 					},
 				},
@@ -1226,25 +1226,25 @@ var fakePayloadReleaseSuccess = models.AzurePipeline{
 			TriggerReason: "ReleaseStarted",
 			TimeToDeploy:  3.1220666666666665,
 		},
-		Project: models.Project{
+		Project: azdo.Project{
 			ID:   "a133d6b5-dfbe-49b7-9a8f-d8cb27e3adc9",
 			Name: "Sample Project",
 		},
-		Deployment: models.Deployment{
+		Deployment: azdo.Deployment{
 			ID:               10414,
 			Reason:           "automated",
 			DeploymentStatus: "succeeded",
 			OperationStatus:  "Approved",
-			RequestedBy: models.RequestedFor{
+			RequestedBy: azdo.RequestedFor{
 				DisplayName: "Microsoft.VisualStudio.Services.ReleaseManagement",
 				ID:          "0000000d-0000-8888-8000-000000000000",
 				UniqueName:  "0000000d-0000-8888-8000-000000000000@2c895908-04e0-4952-89fd-54b0046d6288",
 			},
-			RequestedFor: models.RequestedFor{
+			RequestedFor: azdo.RequestedFor{
 				DisplayName: "Emily Chen",
 				Url:         "https://devops.example.com/Aecd9a5a6-03de-436d-acc4-a73f4c80ca8f/_apis/Identities/0f5c62b4-a018-636c-a082-a76705f2f2cb",
-				Links: models.Links{
-					Avatar: models.LinkHref{
+				Links: azdo.Links{
+					Avatar: azdo.LinkHref{
 						Href: "https://devops.example.com/_apis/GraphProfile/MemberAvatars/aad.MGY1YzYyYjQtYTAxOC03MzZjLWEwODItYTc2NzA1ZjJmMmNi",
 					},
 				},

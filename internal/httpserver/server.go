@@ -1,20 +1,19 @@
-package server
+package httpserver
 
 import (
-	config "discord-azure-integration/config"
+	"azuredevops-notify/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	ConfigServer *config.ConfigServer
+	Config *config.Config
 }
 
 func (s *Server) Init() (*gin.Engine, error) {
 	r := s.SetupRouter()
 
-	err := r.Run()
-	if err != nil {
+	if err := r.Run(); err != nil {
 		return nil, err
 	}
 

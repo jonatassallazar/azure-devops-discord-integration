@@ -1,15 +1,20 @@
-FROM golang:1.16-alpine
+FROM golang:1.22-alpine AS build
 
 WORKDIR /app
 
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-RUN go build
+RUN CGO_ENABLED=0 go build -o /out/server ./cmd/server
+
+FROM alpine:3.19
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=build /out/server /server
 
 EXPOSE 8080
 
-CMD [ "./discord-azure-integration" ]
+CMD [ "/server" ]
