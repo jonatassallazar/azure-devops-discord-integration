@@ -13,6 +13,7 @@ import (
 var envKeys = []string{
 	"APP_ENV",
 	"GIN_MODE",
+	"PUBLIC_BASE_URL",
 	"AZURE_ORGANIZATION",
 	"AZURE_PROJECT",
 	"AZURE_PAT_TOKEN",
@@ -48,6 +49,7 @@ func TestLoadEnvironmentWithoutEnvFile(t *testing.T) {
 	t.Setenv("APP_ENV", "production")
 	t.Setenv("DISCORD_PR_URL", "https://discord.example/pr")
 	t.Setenv("AZURE_PROJECT", "sample-project")
+	t.Setenv("PUBLIC_BASE_URL", "https://notify.example.com")
 
 	var cfg Config
 	assert.NoError(t, cfg.LoadEnvironment())
@@ -55,6 +57,7 @@ func TestLoadEnvironmentWithoutEnvFile(t *testing.T) {
 	assert.Equal(t, "production", cfg.AppEnv)
 	assert.Equal(t, "https://discord.example/pr", cfg.Discord.PRWebhookURL)
 	assert.Equal(t, "sample-project", cfg.Azure.Project)
+	assert.Equal(t, "https://notify.example.com", cfg.PublicBaseURL)
 }
 
 // With no dotenv file and no webhook URL there is nothing to deliver to, so

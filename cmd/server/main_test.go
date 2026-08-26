@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"azuredevops-notify/internal/azuredevops"
@@ -26,11 +27,27 @@ import (
 //	TEST_SINKS=googlechat go test ./cmd/server/... # Google Chat only
 //
 // See the Makefile's test-discord / test-googlechat / test-e2e targets.
+// publicBaseURL stands in for this service's own externally reachable URL:
+// the suite drives the router with httptest.NewRequest rather than over a
+// socket, so only the avatar URLs the handlers build ever use it.
+const publicBaseURL = "https://notify.example.com"
+
+// a 1x1 transparent GIF, the stub's stand-in for an Azure DevOps avatar
+var stubAvatar = []byte("GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;")
+
 func stubHandler(w http.ResponseWriter, r *http.Request) {
 	// The pipeline route resolves its triggering repository with a GET
 	// against the Azure DevOps REST API; every other outbound call is a
 	// sink POSTing a notification. Both just need a 2xx from the stub.
 	if r.Method == http.MethodGet {
+		// The avatar route fetches an identity image from the same host,
+		// so the stub answers that path with image bytes instead of JSON.
+		if strings.Contains(r.URL.Path, "/MemberAvatars/") {
+			w.Header().Set("Content-Type", "image/gif")
+			_, _ = w.Write(stubAvatar)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(azuredevops.AzureRepository{
 			ID:   "7a7c38b3-ac94-4e1e-b47e-d746c762079a",
@@ -55,6 +72,7 @@ func writeTestEnv(stubURL string) (func(), error) {
 	lines := []string{
 		"APP_ENV=development",
 		"GIN_MODE=test",
+		"PUBLIC_BASE_URL=" + publicBaseURL,
 		"AZURE_ORGANIZATION=" + stubURL,
 		"AZURE_PROJECT=sample-project",
 		"AZURE_PAT_TOKEN=fake-token",
@@ -148,6 +166,35 @@ func TestHealthCheckRoute(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.JSONEq(t, `{"status":"ok"}`, w.Body.String())
+}
+
+// Should fetch an Azure DevOps avatar with the PAT and serve it back, so the
+// chat platforms have a URL they can load anonymously
+func TestAvatarRoute(t *testing.T) {
+	r, _ := prepareRouter()
+
+	var cfg config.Config
+	if err := cfg.LoadEnvironment(); err != nil {
+		t.Fatal(err)
+	}
+
+	proxy := azuredevops.AvatarProxy{BaseURL: cfg.PublicBaseURL, Azure: cfg.Azure}
+	imageURL := cfg.Azure.Organization + "/_apis/GraphProfile/MemberAvatars/aad.abc"
+
+	proxied := proxy.URLFor(imageURL)
+	assert.True(t, strings.HasPrefix(proxied, publicBaseURL+"/avatar/"), "expected a proxied avatar URL, got %q", proxied)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodGet, strings.TrimPrefix(proxied, publicBaseURL), nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "image/gif", w.Header().Get("Content-Type"))
+	assert.Equal(t, stubAvatar, w.Body.Bytes())
 }
 
 // Should send a notification to the configured sink(s) with created flag

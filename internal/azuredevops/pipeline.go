@@ -20,6 +20,7 @@ import (
 type PipelineHandler struct {
 	Dispatcher *notify.Dispatcher
 	Azure      config.AzureConfig
+	Avatars    *AvatarProxy
 }
 
 func (h *PipelineHandler) PipelineStatusReport(c *gin.Context) {
@@ -41,7 +42,7 @@ func (h *PipelineHandler) PipelineStatusReport(c *gin.Context) {
 		return
 	}
 
-	msg := req.toPipelineMessage(fmt.Sprintf("Pipeline %s", title), level, repository)
+	msg := req.toPipelineMessage(fmt.Sprintf("Pipeline %s", title), level, repository, h.Avatars)
 
 	if err := h.Dispatcher.Send(c.Request.Context(), msg); err != nil {
 		respondError(c, err)

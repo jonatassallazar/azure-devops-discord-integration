@@ -91,6 +91,32 @@ set — the server would accept webhooks and deliver them nowhere. Setting any o
 `DISCORD_PR_URL`, `DISCORD_PIPELINE_URL`, `DISCORD_RELEASE_URL`, `GOOGLE_CHAT_PR_URL`,
 `GOOGLE_CHAT_PIPELINE_URL` or `GOOGLE_CHAT_RELEASE_URL` satisfies it.
 
+### User Avatars (`PUBLIC_BASE_URL`)
+
+The `imageUrl` Azure DevOps sends in a webhook payload points at an endpoint that requires
+authentication, and on Azure DevOps Server it is often only reachable from inside your
+network. Discord and Google Chat fetch that URL anonymously from *their* servers, so they
+get a sign-in page instead of an image and render a blank avatar next to the notification.
+
+Set `PUBLIC_BASE_URL` to this service's own externally reachable base URL to fix that:
+
+```bash
+PUBLIC_BASE_URL=https://notify.example.com
+```
+
+Notifications then carry `https://notify.example.com/avatar/<ref>` instead of the raw Azure
+URL, and this service fetches the image from Azure with `AZURE_PAT_TOKEN` and serves it back.
+Requirements and caveats:
+
+- The URL has to be reachable **by Discord / Google Chat**, not just by Azure DevOps.
+- `AZURE_ORGANIZATION` and `AZURE_PAT_TOKEN` must be set — the avatar route only fetches from
+  the organization's host (that check is what keeps it from being an open proxy), and the PAT
+  is what authenticates the fetch.
+- Leave `PUBLIC_BASE_URL` empty to keep the previous behaviour of passing Azure's raw image
+  URLs straight through, which is fine when your Azure DevOps avatars are publicly readable.
+- Like every other inbound route, `/avatar/<ref>` is unauthenticated: anyone who can reach the
+  port can fetch avatars from your Azure DevOps host.
+
 ### How to Get Azure DevOps Personal Access Token (PAT)
 
 1. Access Azure DevOps
@@ -131,6 +157,13 @@ The server exposes the following endpoints that should be configured as Service 
 ### Releases
 
 - `POST /release/` - Notifies about release status changes
+
+### Avatars
+
+- `GET /avatar/<ref>` - Serves an Azure DevOps user avatar, fetched with the configured PAT.
+  Not an Azure DevOps Service Hook: it exists so the chat apps have an image URL they can
+  load anonymously. Only active when `PUBLIC_BASE_URL` is set — see
+  [User Avatars](#user-avatars-public_base_url).
 
 ### Health
 
@@ -236,7 +269,7 @@ spec:
         - containerPort: 8080
       envFrom:
         - configMapRef:
-            name: azuredevops-notify-config   # APP_ENV, GIN_MODE, AZURE_ORGANIZATION, AZURE_PROJECT
+            name: azuredevops-notify-config   # APP_ENV, GIN_MODE, AZURE_ORGANIZATION, AZURE_PROJECT, PUBLIC_BASE_URL
         - secretRef:
             name: azuredevops-notify-secret   # AZURE_PAT_TOKEN, DISCORD_*_URL, GOOGLE_CHAT_*_URL
       livenessProbe:
@@ -269,6 +302,8 @@ APP_ENV=development GIN_MODE=debug go run ./cmd/server
 ## 🔒 Security
 
 - **Never** commit `.env` or `.env.*` files to the repository
+- The inbound routes are unauthenticated, `/avatar/<ref>` included — put the service behind a
+  network boundary you trust
 - Keep your tokens and webhooks secure
 - Use environment variables or secrets in production environments
 - Consider using HTTPS in production

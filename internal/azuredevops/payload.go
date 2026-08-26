@@ -7,13 +7,13 @@ import (
 	"azuredevops-notify/internal/notify"
 )
 
-func (a *AzureRequest) toPRMessage(title string, level notify.Level) notify.Message {
+func (a *AzureRequest) toPRMessage(title string, level notify.Level, avatars *AvatarProxy) notify.Message {
 	return notify.Message{
 		Source: "Azure Pull Request",
 		Author: notify.Author{
 			Name:    a.Resource.CreatedBy.DisplayName,
 			URL:     a.Resource.CreatedBy.Url,
-			IconURL: a.Resource.CreatedBy.ImageUrl,
+			IconURL: avatars.URLFor(a.Resource.CreatedBy.ImageUrl),
 		},
 		Title:       title,
 		URL:         fmt.Sprintf("%s/pullrequest/%d", a.Resource.Repository.RemoteUrl, a.Resource.PullRequestId),
@@ -24,13 +24,13 @@ func (a *AzureRequest) toPRMessage(title string, level notify.Level) notify.Mess
 	}
 }
 
-func (a *AzureRequest) toPipelineMessage(title string, level notify.Level, repository AzureRepository) notify.Message {
+func (a *AzureRequest) toPipelineMessage(title string, level notify.Level, repository AzureRepository, avatars *AvatarProxy) notify.Message {
 	return notify.Message{
 		Source: "Azure Pipeline Build",
 		Author: notify.Author{
 			Name:    a.Resource.RequestedFor.DisplayName,
 			URL:     a.Resource.RequestedFor.Url,
-			IconURL: a.Resource.RequestedFor.ImageUrl,
+			IconURL: avatars.URLFor(a.Resource.RequestedFor.ImageUrl),
 		},
 		Title:       title,
 		URL:         a.Resource.Links.Web.Href,
@@ -45,13 +45,13 @@ func (a *AzureRequest) toPipelineMessage(title string, level notify.Level, repos
 	}
 }
 
-func (a *AzureRequest) toReleaseMessage(title string, level notify.Level) notify.Message {
+func (a *AzureRequest) toReleaseMessage(title string, level notify.Level, avatars *AvatarProxy) notify.Message {
 	return notify.Message{
 		Source: "Azure Release Build",
 		Author: notify.Author{
 			Name:    a.Resource.Deployment.RequestedFor.DisplayName,
 			URL:     a.Resource.Deployment.RequestedFor.Url,
-			IconURL: a.Resource.Deployment.RequestedFor.ImageUrl,
+			IconURL: avatars.URLFor(a.Resource.Deployment.RequestedFor.ImageUrl),
 		},
 		Title:       title,
 		URL:         a.Resource.Environment.ReleaseDefinition.Links.Web.Href,

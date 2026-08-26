@@ -27,11 +27,15 @@ type GoogleChatConfig struct {
 }
 
 type Config struct {
-	AppEnv     string
-	GinMode    string
-	Azure      AzureConfig
-	Discord    DiscordConfig
-	GoogleChat GoogleChatConfig
+	AppEnv  string
+	GinMode string
+	// PublicBaseURL is this service's own externally reachable base URL.
+	// Setting it turns on avatar proxying (see azuredevops.AvatarProxy);
+	// leaving it empty keeps the raw Azure DevOps image URLs.
+	PublicBaseURL string
+	Azure         AzureConfig
+	Discord       DiscordConfig
+	GoogleChat    GoogleChatConfig
 }
 
 func (c *Config) LoadEnvironment() error {
@@ -39,6 +43,7 @@ func (c *Config) LoadEnvironment() error {
 
 	c.AppEnv = os.Getenv("APP_ENV")
 	c.GinMode = os.Getenv("GIN_MODE")
+	c.PublicBaseURL = os.Getenv("PUBLIC_BASE_URL")
 
 	c.Azure = AzureConfig{
 		Organization: os.Getenv("AZURE_ORGANIZATION"),

@@ -40,9 +40,10 @@ internal/notify/
 
 internal/azuredevops/
   routes.go                    Route path constants
+  avatar.go / avatar_test.go     AvatarProxy: rewrites Azure identity image URLs to RouteAvatar and serves them with the PAT
   models.go                     Structs mirroring Azure DevOps webhook JSON (AzureRequest, Resource, ...)
   payload.go                    AzureRequest -> notify.Message converters + label helpers
-  errors.go                      Shared respondError() helper (DRYs the repeated bad-request response)
+  errors.go                      Shared respondError() / respondErrorStatus() helpers (DRY the repeated error response)
   pullrequest.go / *_test.go     PullRequestHandler: CreatedPR, ReviewedPR, StatusUpdatedPR, processVotes
   pipeline.go / *_test.go        PipelineHandler: PipelineStatusReport, processStatus, getRepository
   release.go / *_test.go         ReleaseHandler: ReleaseStatusReport, processReleaseStatus
@@ -97,8 +98,12 @@ Azure DevOps Service Hook URLs already configured in production — do not renam
 | `RouteStatusUpdatedPR` | `POST /pull-request/status` | `PullRequestHandler.StatusUpdatedPR` | same as above |
 | `RoutePipeline` | `POST /pipeline/` | `PipelineHandler.PipelineStatusReport` | `Discord.PipelineWebhookURL`, `GoogleChat.PipelineWebhookURL` |
 | `RouteRelease` | `POST /release/` | `ReleaseHandler.ReleaseStatusReport` | `Discord.ReleaseWebhookURL`, `GoogleChat.ReleaseWebhookURL` |
+| `RouteAvatar` | `GET /avatar/:ref` | `AvatarProxy.Avatar` | none (outbound: Azure DevOps) |
 
 Note the trailing slash on `/pipeline/` and `/release/` — Azure hook URLs must match.
+
+`GET /avatar/:ref` is not an Azure DevOps hook either: it is the outbound half of the avatar
+fix (see "User avatars" below). `:ref` is the base64url-encoded Azure image URL.
 
 `GET /health` is not an Azure DevOps hook: it's the container liveness/readiness probe, so its
 constant lives in `internal/httpserver/health.go` rather than in `internal/azuredevops/routes.go`.
@@ -134,14 +139,46 @@ Discord to an embed color int, Google Chat to a colored-circle indicator in the 
 Merge status labels live in `getMergeStatusText()` (`succeeded`, `conflicts`, `queued`,
 `rejectedByPolicy`, `failure`).
 
+## User avatars
+
+The `imageUrl` Azure DevOps puts in a webhook payload points at an authenticated endpoint
+(`.../_apis/GraphProfile/MemberAvatars/<descriptor>`, or `_api/_common/identityImage?id=` on
+older servers), and on Azure DevOps Server that host is frequently internal-only. Discord and
+Google Chat fetch an author icon anonymously from their own servers, so handing them the raw
+URL yields a sign-in page, not an image, and the chat message shows a blank avatar.
+
+`azuredevops.AvatarProxy` (`internal/azuredevops/avatar.go`) closes that gap and is the one
+place that knows about it:
+
+- `URLFor(imageURL)` is called by the `to*Message()` converters when building
+  `notify.Author.IconURL`. With `PUBLIC_BASE_URL` unset it returns the URL unchanged (previous
+  behaviour, correct when Azure is publicly readable); otherwise it returns
+  `{PUBLIC_BASE_URL}/avatar/{base64url(imageURL)}`.
+- `Avatar(c)` serves `RouteAvatar`: it decodes the reference, **requires it to be on the same
+  scheme+host as `AZURE_ORGANIZATION`** (this check is what stops the route being an open
+  proxy that would attach the PAT to any URL), fetches it with the same
+  `Basic base64(":"+PAT)` auth the pipeline route uses, and streams the bytes back with the
+  upstream `Content-Type` and a one-hour `Cache-Control`. A non-200, or a 200 whose
+  `Content-Type` is not `image/*` (Azure answers an unauthorized fetch with an HTML sign-in
+  page), is a `502` — that content-type check is the useful "your PAT is wrong" signal.
+
+One `AvatarProxy` is built in `SetupRouter` and shared by all three handlers (`Avatars` field)
+and by the route itself. A `nil` proxy is safe: `URLFor` on nil returns its input, which is why
+the `process*`-only unit tests can keep constructing bare handlers.
+
+Sink-side, the Discord payload sends `avatar_url` (the previous `avatarUrl` spelling was
+silently ignored by Discord), and `author`/`thumbnail`/`image`/`footer` are pointers omitted
+when empty — an embed object carrying an empty `url` is a broken image for Discord to render
+rather than an absent one.
+
 ## Conventions
 
 - **Language split**: identifiers, comments and log output are English; user-facing chat
   strings (titles, field names, labels) are **Brazilian Portuguese**. Keep new copy in pt-BR
   to stay consistent.
-- **Handlers** are structs holding only a `*notify.Dispatcher` (and, for
-  `PipelineHandler`, a `config.AzureConfig`), instantiated once in `SetupRouter` and bound as
-  method handlers. They hold **no per-request state** — the parsed request is always a local
+- **Handlers** are structs holding only a `*notify.Dispatcher`, a shared `*AvatarProxy` (and,
+  for `PipelineHandler`, a `config.AzureConfig`), instantiated once in `SetupRouter` and bound
+  as method handlers. They hold **no per-request state** — the parsed request is always a local
   variable inside the handler method, never a struct field. Adding a feature means: a new
   struct/method in `internal/azuredevops/`, a route constant in `routes.go`, and wiring in
   `internal/httpserver/router.go`.
@@ -211,7 +248,8 @@ accept webhooks and deliver nowhere. `main` logs that error and exits.
 | `GOOGLE_CHAT_PR_URL` / `GOOGLE_CHAT_PIPELINE_URL` / `GOOGLE_CHAT_RELEASE_URL` | Google Chat webhooks, one per event category (optional — unset disables Google Chat for that category) |
 | `AZURE_ORGANIZATION` | Base URL used to build the Azure REST call (used as a URL prefix, not a bare org name) |
 | `AZURE_PROJECT` | Project segment of the Azure REST call |
-| `AZURE_PAT_TOKEN` | PAT used for Basic auth against the Azure REST API |
+| `AZURE_PAT_TOKEN` | PAT used for Basic auth against the Azure REST API, and by the avatar route |
+| `PUBLIC_BASE_URL` | This service's own externally reachable base URL. Optional; when set, user avatars are proxied through `RouteAvatar` instead of being linked straight to Azure (see "User avatars"). Must be reachable by Discord/Google Chat |
 
 At least one webhook URL (Discord and/or Google Chat) must be set overall, and should be set
 per event category you want notifications for. The listen address comes from gin's `r.Run()` default: `:8080`,
@@ -259,6 +297,11 @@ A `Makefile` wraps the commands above (`make build`, `make test`, `make test-uni
   the file resolve under `development` — `writeTestEnv()` writes a plain `.env` (the final,
   always-attempted fallback per `config.Config.LoadEnvironment`), which covers both cases.
 - New fixtures for root tests go in `cmd/server/mocks_test.go` as `fakePayload*` vars.
+- The `cmd/server` stub answers a GET whose path contains `/MemberAvatars/` with a 1x1 GIF
+  (`stubAvatar`) instead of the repository JSON, so `TestAvatarRoute` can exercise the avatar
+  route offline. `writeTestEnv` sets `PUBLIC_BASE_URL` to a fixed placeholder — the suite
+  drives the router through `httptest.NewRequest`, so only the URLs the handlers *build* use
+  it.
 
 ## CI
 
@@ -297,7 +340,11 @@ Do not "fix" these silently as part of an unrelated change; flag them or fix the
   now treated as an error (fixed deliberately as part of the multi-vendor rewrite — previously
   neither was true).
 - Inbound routes are unauthenticated — anyone who can reach the port can post notifications to
-  the configured Discord/Google Chat destinations.
+  the configured Discord/Google Chat destinations, and (when `PUBLIC_BASE_URL` is set) fetch
+  any avatar on the configured Azure DevOps host through `GET /avatar/:ref`.
+- `respondError` renders the error as `gin.H{"err": err}`, which marshals to `{}` for most
+  error types — the detail only reaches stdout. Left as-is (the error shape is part of the
+  existing response contract); tests assert on the status code, not the body.
 - There is intentionally no `Source` interface for inbound events (see "Adding a new inbound
   source" above) — only add one when a second real source (e.g. GitHub) is actually being
   built, not speculatively.

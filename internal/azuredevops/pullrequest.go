@@ -14,6 +14,7 @@ import (
 // per-request state, so one instance safely serves concurrent requests.
 type PullRequestHandler struct {
 	Dispatcher *notify.Dispatcher
+	Avatars    *AvatarProxy
 }
 
 func (h *PullRequestHandler) CreatedPR(c *gin.Context) {
@@ -23,7 +24,7 @@ func (h *PullRequestHandler) CreatedPR(c *gin.Context) {
 		return
 	}
 
-	msg := req.toPRMessage("Pull Request Criado", notify.LevelPending)
+	msg := req.toPRMessage("Pull Request Criado", notify.LevelPending, h.Avatars)
 
 	if err := h.Dispatcher.Send(c.Request.Context(), msg); err != nil {
 		respondError(c, err)
@@ -51,7 +52,7 @@ func (h *PullRequestHandler) ReviewedPR(c *gin.Context) {
 		return
 	}
 
-	msg := req.toPRMessage(fmt.Sprintf("Pull Request | %s", title), level)
+	msg := req.toPRMessage(fmt.Sprintf("Pull Request | %s", title), level, h.Avatars)
 
 	if err := h.Dispatcher.Send(c.Request.Context(), msg); err != nil {
 		respondError(c, err)
@@ -81,7 +82,7 @@ func (h *PullRequestHandler) StatusUpdatedPR(c *gin.Context) {
 		return
 	}
 
-	msg := req.toPRMessage(fmt.Sprintf("Pull Request %s", title), level)
+	msg := req.toPRMessage(fmt.Sprintf("Pull Request %s", title), level, h.Avatars)
 
 	if err := h.Dispatcher.Send(c.Request.Context(), msg); err != nil {
 		respondError(c, err)

@@ -25,28 +25,33 @@ var levelColors = map[notify.Level]int32{
 }
 
 type payload struct {
-	Username  string  `json:"username"`
-	AvatarURL string  `json:"avatarUrl"`
-	Content   string  `json:"content"`
+	Username string `json:"username,omitempty"`
+	// Discord's webhook field is avatar_url, not avatarUrl - spelled the
+	// old way it was silently ignored as an unknown field.
+	AvatarURL string  `json:"avatar_url,omitempty"`
+	Content   string  `json:"content,omitempty"`
 	Embeds    []embed `json:"embeds"`
 }
 
+// The optional objects are pointers so an unset one is omitted entirely:
+// an "image"/"thumbnail" carrying an empty url is a broken image for
+// Discord to render, not an absent one.
 type embed struct {
-	Author      author  `json:"author"`
-	Title       string  `json:"title"`
-	URL         string  `json:"url"`
-	Description string  `json:"description"`
-	Color       int32   `json:"color"`
-	Fields      []field `json:"fields"`
-	Thumbnail   linkURL `json:"thumbnail"`
-	Image       linkURL `json:"image"`
-	Footer      footer  `json:"footer"`
+	Author      *author  `json:"author,omitempty"`
+	Title       string   `json:"title"`
+	URL         string   `json:"url"`
+	Description string   `json:"description"`
+	Color       int32    `json:"color"`
+	Fields      []field  `json:"fields"`
+	Thumbnail   *linkURL `json:"thumbnail,omitempty"`
+	Image       *linkURL `json:"image,omitempty"`
+	Footer      *footer  `json:"footer,omitempty"`
 }
 
 type author struct {
 	Name    string `json:"name"`
-	URL     string `json:"url"`
-	IconURL string `json:"icon_url"`
+	URL     string `json:"url,omitempty"`
+	IconURL string `json:"icon_url,omitempty"`
 }
 
 type field struct {
@@ -61,7 +66,7 @@ type linkURL struct {
 
 type footer struct {
 	Text    string `json:"text"`
-	IconURL string `json:"icon_url"`
+	IconURL string `json:"icon_url,omitempty"`
 }
 
 // Sink delivers notify.Messages to a Discord incoming webhook.
@@ -84,20 +89,27 @@ func (s *Sink) Send(ctx context.Context, msg notify.Message) error {
 		fields[i] = field{Name: f.Name, Value: f.Value, Inline: f.Inline}
 	}
 
+	item := embed{
+		Title:       msg.Title,
+		URL:         msg.URL,
+		Description: msg.Description,
+		Color:       levelColors[msg.Level],
+		Fields:      fields,
+	}
+
+	if msg.Author.Name != "" {
+		item.Author = &author{Name: msg.Author.Name, URL: msg.Author.URL, IconURL: msg.Author.IconURL}
+	}
+	if msg.ThumbnailURL != "" {
+		item.Thumbnail = &linkURL{URL: msg.ThumbnailURL}
+	}
+	if msg.FooterText != "" {
+		item.Footer = &footer{Text: msg.FooterText}
+	}
+
 	body := payload{
 		Username: msg.Source,
-		Embeds: []embed{
-			{
-				Author:      author{Name: msg.Author.Name, URL: msg.Author.URL, IconURL: msg.Author.IconURL},
-				Title:       msg.Title,
-				URL:         msg.URL,
-				Description: msg.Description,
-				Color:       levelColors[msg.Level],
-				Fields:      fields,
-				Thumbnail:   linkURL{URL: msg.ThumbnailURL},
-				Footer:      footer{Text: msg.FooterText},
-			},
-		},
+		Embeds:   []embed{item},
 	}
 
 	data, err := json.Marshal(body)
