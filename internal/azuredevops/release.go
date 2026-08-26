@@ -13,7 +13,6 @@ import (
 // no per-request state, so one instance safely serves concurrent requests.
 type ReleaseHandler struct {
 	Dispatcher *notify.Dispatcher
-	Avatars    *AvatarProxy
 }
 
 func (h *ReleaseHandler) ReleaseStatusReport(c *gin.Context) {
@@ -29,7 +28,7 @@ func (h *ReleaseHandler) ReleaseStatusReport(c *gin.Context) {
 		return
 	}
 
-	msg := req.toReleaseMessage(fmt.Sprintf("Release %s", title), level, h.Avatars)
+	msg := req.toReleaseMessage(fmt.Sprintf("Release %s", title), level)
 
 	if err := h.Dispatcher.Send(c.Request.Context(), msg); err != nil {
 		respondError(c, err)

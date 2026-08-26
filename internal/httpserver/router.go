@@ -16,30 +16,18 @@ func (s *Server) SetupRouter() *gin.Engine {
 
 	r := gin.Default()
 
-	// One proxy shared by every handler: it is stateless apart from its
-	// configuration, and the same instance both rewrites the avatar URLs
-	// that go out in messages and serves them back on RouteAvatar.
-	avatars := &azuredevops.AvatarProxy{
-		BaseURL: s.Config.PublicBaseURL,
-		Azure:   s.Config.Azure,
-	}
-
 	prHandler := azuredevops.PullRequestHandler{
 		Dispatcher: buildDispatcher(s.Config.Discord.PRWebhookURL, s.Config.GoogleChat.PRWebhookURL),
-		Avatars:    avatars,
 	}
 	pipelineHandler := azuredevops.PipelineHandler{
 		Dispatcher: buildDispatcher(s.Config.Discord.PipelineWebhookURL, s.Config.GoogleChat.PipelineWebhookURL),
 		Azure:      s.Config.Azure,
-		Avatars:    avatars,
 	}
 	releaseHandler := azuredevops.ReleaseHandler{
 		Dispatcher: buildDispatcher(s.Config.Discord.ReleaseWebhookURL, s.Config.GoogleChat.ReleaseWebhookURL),
-		Avatars:    avatars,
 	}
 
 	r.GET(RouteHealth, healthCheck)
-	r.GET(azuredevops.RouteAvatar, avatars.Avatar)
 
 	r.POST(azuredevops.RouteCreatedPR, prHandler.CreatedPR)
 	r.POST(azuredevops.RouteReviewedPR, prHandler.ReviewedPR)
