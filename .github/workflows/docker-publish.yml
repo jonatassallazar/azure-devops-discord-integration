@@ -21,8 +21,43 @@ env:
 
 
 jobs:
+  # Correctness gate. `build` needs this, so a commit that fails gofmt, vet or
+  # the test suite never reaches the registry (and never moves `latest`).
+  # cmd/server's end-to-end tests run fully offline, so no secrets are needed.
+  test:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Check formatting
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "::error::gofmt reported unformatted files:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
   build:
 
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read

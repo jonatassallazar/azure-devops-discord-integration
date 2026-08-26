@@ -55,7 +55,7 @@ Dockerfile              Multi-stage build (golang:1.22-alpine -> alpine:3.19), e
 docker-compose.yml      Single `app` service, host port 8080
 
 .github/workflows/
-  docker-publish.yml    Builds the image and pushes it to ghcr.io (see "CI" below)
+  docker-publish.yml    test job (gofmt/vet/test) gating a build+push to ghcr.io (see "CI")
 ```
 
 ## Request flow
@@ -246,8 +246,17 @@ A `Makefile` wraps the commands above (`make build`, `make test`, `make test-uni
 
 ## CI
 
-`.github/workflows/docker-publish.yml` is the only workflow. It builds the `Dockerfile` with
-Buildx, pushes to `ghcr.io/<owner>/<repo>`, and signs the digest with cosign. Triggers:
+`.github/workflows/docker-publish.yml` is the only workflow. It has two jobs:
+
+- **`test`** — the correctness gate: `gofmt -l .` (fails if it reports anything), `go vet ./...`,
+  `go test ./...`. The Go version comes from `go.mod` via `go-version-file`, so bumping the
+  module's Go version is enough — don't also hardcode it in the workflow. Every test in this
+  repo runs offline (see "Testing gotchas"), so the job needs no secrets or services.
+- **`build`** — `needs: test`, so nothing reaches the registry unless the gate is green. Builds
+  the `Dockerfile` with Buildx, pushes to `ghcr.io/<owner>/<repo>`, and signs the digest with
+  cosign.
+
+Triggers:
 
 | Event | Pushes to GHCR? | Package tags |
 |---|---|---|
@@ -273,9 +282,6 @@ Do not "fix" these silently as part of an unrelated change; flag them or fix the
   neither was true).
 - Inbound routes are unauthenticated — anyone who can reach the port can post notifications to
   the configured Discord/Google Chat destinations.
-- CI is publish-only: `.github/workflows/docker-publish.yml` builds and pushes the image, but
-  nothing there runs `go test`, `go vet` or `gofmt` — correctness checks are still local only,
-  and a broken commit on `main` will happily be published as `latest`.
 - There is intentionally no `Source` interface for inbound events (see "Adding a new inbound
   source" above) — only add one when a second real source (e.g. GitHub) is actually being
   built, not speculatively.
