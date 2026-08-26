@@ -13,7 +13,7 @@ func (a *AzureRequest) toPRMessage(title string, level notify.Level) notify.Mess
 		Author: notify.Author{
 			Name:    a.Resource.CreatedBy.DisplayName,
 			URL:     a.Resource.CreatedBy.Url,
-			IconURL: a.Resource.CreatedBy.ImageUrl,
+			IconURL: avatarURL(a.Resource.CreatedBy.UniqueName),
 		},
 		Title:       title,
 		URL:         fmt.Sprintf("%s/pullrequest/%d", a.Resource.Repository.RemoteUrl, a.Resource.PullRequestId),
@@ -30,7 +30,7 @@ func (a *AzureRequest) toPipelineMessage(title string, level notify.Level, repos
 		Author: notify.Author{
 			Name:    a.Resource.RequestedFor.DisplayName,
 			URL:     a.Resource.RequestedFor.Url,
-			IconURL: a.Resource.RequestedFor.ImageUrl,
+			IconURL: avatarURL(a.Resource.RequestedFor.UniqueName),
 		},
 		Title:       title,
 		URL:         a.Resource.Links.Web.Href,
@@ -51,7 +51,7 @@ func (a *AzureRequest) toReleaseMessage(title string, level notify.Level) notify
 		Author: notify.Author{
 			Name:    a.Resource.Deployment.RequestedFor.DisplayName,
 			URL:     a.Resource.Deployment.RequestedFor.Url,
-			IconURL: a.Resource.Deployment.RequestedFor.ImageUrl,
+			IconURL: avatarURL(a.Resource.Deployment.RequestedFor.UniqueName),
 		},
 		Title:       title,
 		URL:         a.Resource.Environment.ReleaseDefinition.Links.Web.Href,

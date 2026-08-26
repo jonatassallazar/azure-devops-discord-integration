@@ -40,6 +40,7 @@ internal/notify/
 
 internal/azuredevops/
   routes.go                    Route path constants
+  avatar.go / avatar_test.go     avatarURL(): Azure identity -> Gravatar URL for notify.Author.IconURL
   models.go                     Structs mirroring Azure DevOps webhook JSON (AzureRequest, Resource, ...)
   payload.go                    AzureRequest -> notify.Message converters + label helpers
   errors.go                      Shared respondError() helper (DRYs the repeated bad-request response)
@@ -133,6 +134,36 @@ Discord to an embed color int, Google Chat to a colored-circle indicator in the 
 
 Merge status labels live in `getMergeStatusText()` (`succeeded`, `conflicts`, `queued`,
 `rejectedByPolicy`, `failure`).
+
+## User avatars
+
+The `imageUrl` Azure DevOps puts in a webhook payload points at an authenticated endpoint
+(`.../_apis/GraphProfile/MemberAvatars/<descriptor>`), and on Azure DevOps Server that host is
+frequently internal-only. Discord and Google Chat fetch an author icon anonymously from their
+own servers, so handing them the raw URL yields a sign-in page, not an image, and the chat
+message shows a blank avatar.
+
+`avatarURL()` in `internal/azuredevops/avatar.go` is the whole answer: it maps the identity's
+`uniqueName` (their email/UPN) to `https://www.gravatar.com/avatar/{md5(lowercased address)}`,
+a public URL the chat platforms can fetch themselves. **Azure's `imageUrl` is deliberately
+unused** — serving or proxying images is not this service's job, so nothing here fetches,
+caches or re-hosts an avatar.
+
+- `?s=80&d=identicon`: an address with no Gravatar account still gets a stable per-user
+  pattern instead of a blank circle. The size and default live in the two consts at the top of
+  the file.
+- `uniqueName` is parsed with `net/mail`. Anything that is not an address — an on-premises
+  `DOMAIN\user`, a service account, an empty field — yields `""`, and the message goes out
+  with no author icon at all. That is the intended fallback: no icon beats a broken one.
+- Privacy note worth keeping in mind: this puts an MD5 of each user's email address into
+  every notification, which Discord/Google Chat then resolve against gravatar.com. There is no
+  opt-out switch today; add one before that becomes a problem for someone.
+
+Sink-side, the Discord payload sends `avatar_url` (the previous `avatarUrl` spelling was
+silently ignored by Discord), and `author`/`thumbnail`/`image`/`footer` are pointers omitted
+when empty — an embed object carrying an empty `url` is a broken image for Discord to render
+rather than an absent one, which matters now that `IconURL` is legitimately empty for
+identities without an address.
 
 ## Conventions
 
@@ -293,6 +324,9 @@ Do not "fix" these silently as part of an unrelated change; flag them or fix the
 
 - `models.AzurePipeline` (now `azuredevops.AzurePipeline`) is only used by test fixtures; the
   live routes bind `AzureRequest`.
+- `Resource.CreatedBy.ImageUrl` / `RequestedFor.ImageUrl` are still bound from the payload but
+  no longer used for anything (see "User avatars"). They are kept because the model structs
+  deliberately mirror the Azure JSON.
 - Response bodies from sink HTTP POSTs *are* now read and closed, and a non-2xx response *is*
   now treated as an error (fixed deliberately as part of the multi-vendor rewrite — previously
   neither was true).

@@ -91,6 +91,24 @@ set — the server would accept webhooks and deliver them nowhere. Setting any o
 `DISCORD_PR_URL`, `DISCORD_PIPELINE_URL`, `DISCORD_RELEASE_URL`, `GOOGLE_CHAT_PR_URL`,
 `GOOGLE_CHAT_PIPELINE_URL` or `GOOGLE_CHAT_RELEASE_URL` satisfies it.
 
+### User Avatars
+
+Author icons in notifications come from [Gravatar](https://gravatar.com), keyed on the user's
+email address as Azure DevOps reports it (`uniqueName`). There is nothing to configure.
+
+Azure DevOps' own avatar URLs require authentication and, on Azure DevOps Server, are usually
+only reachable from inside your network — Discord and Google Chat fetch an author icon
+anonymously from *their* servers, so those URLs produce a blank avatar. Gravatar serves the
+same person's picture from a public URL instead, which keeps image hosting out of this service
+entirely.
+
+- A user with a Gravatar account gets their picture; anyone else gets a per-user `identicon`
+  pattern.
+- An identity with no email address (an on-premises `DOMAIN\user`, a service account) gets no
+  author icon rather than a broken one.
+- Note this means an MD5 of each user's email address appears in the notifications sent to
+  Discord / Google Chat, which resolve it against gravatar.com.
+
 ### How to Get Azure DevOps Personal Access Token (PAT)
 
 1. Access Azure DevOps
