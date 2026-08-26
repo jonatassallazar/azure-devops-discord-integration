@@ -122,10 +122,13 @@ any rejection wins, then waiting, then approval:
 PR status (`StatusUpdatedPR`): `completed` -> `notify.LevelCompleted` "Concluído", `conflicts`
 -> `notify.LevelFailure` "com Conflito", anything else -> `204`.
 
-Pipeline `resource.result` and release `resource.deployment.deploymentStatus` share the same
+Pipeline `resource.result` and release `resource.deployment.deploymentStatus` share the base
 mapping: `succeeded` -> `LevelSuccess` "Concluída", `failed` -> `LevelFailure` "Falhada",
 `stopped` -> `LevelWarning` "Interrompida", default -> `LevelUnmapped`
-`[Status não mapeado: X]` (still notifies, on purpose).
+`[Status não mapeado: X]` (still notifies, on purpose). Pipeline additionally maps
+`partiallySucceeded` -> `LevelWarning` "Parcialmente Concluída" and `canceled` -> `LevelWarning`
+"Cancelada" (`processStatus` in `internal/azuredevops/pipeline.go`); release does not have
+these two `resource.result` values, so `processReleaseStatus` doesn't need them.
 
 `notify.Level` is vendor-neutral; each sink privately maps it to its own visual language —
 Discord to an embed color int, Google Chat to a colored-circle indicator in the card header
