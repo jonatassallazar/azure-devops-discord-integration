@@ -134,6 +134,22 @@ func TestConfigE2ETesting(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+// Should answer the health probe without touching any sink
+func TestHealthCheckRoute(t *testing.T) {
+	r, _ := prepareRouter()
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodGet, httpserver.RouteHealth, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.JSONEq(t, `{"status":"ok"}`, w.Body.String())
+}
+
 // Should send a notification to the configured sink(s) with created flag
 func TestCreateRequestRoute(t *testing.T) {
 	r, _ := prepareRouter()

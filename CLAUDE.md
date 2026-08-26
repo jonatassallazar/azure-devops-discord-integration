@@ -50,6 +50,7 @@ internal/azuredevops/
 internal/httpserver/
   server.go                     Server struct, Init() -> SetupRouter() + r.Run()
   router.go                      SetupRouter(): gin engine, handler + Dispatcher wiring, route table
+  health.go                      RouteHealth constant + healthCheck handler (liveness/readiness probe)
 
 Dockerfile              Multi-stage build (golang:1.22-alpine -> alpine:3.19), exposes 8080
 docker-compose.yml      Single `app` service, host port 8080
@@ -90,6 +91,7 @@ Azure DevOps Service Hook URLs already configured in production — do not renam
 
 | Constant | Path | Handler | Sinks used |
 |---|---|---|---|
+| `httpserver.RouteHealth` | `GET /health` | `httpserver.healthCheck` | none |
 | `RouteCreatedPR` | `POST /pull-request/created` | `PullRequestHandler.CreatedPR` | `Discord.PRWebhookURL`, `GoogleChat.PRWebhookURL` |
 | `RouteReviewedPR` | `POST /pull-request/review` | `PullRequestHandler.ReviewedPR` | same as above |
 | `RouteStatusUpdatedPR` | `POST /pull-request/status` | `PullRequestHandler.StatusUpdatedPR` | same as above |
@@ -97,6 +99,11 @@ Azure DevOps Service Hook URLs already configured in production — do not renam
 | `RouteRelease` | `POST /release/` | `ReleaseHandler.ReleaseStatusReport` | `Discord.ReleaseWebhookURL`, `GoogleChat.ReleaseWebhookURL` |
 
 Note the trailing slash on `/pipeline/` and `/release/` — Azure hook URLs must match.
+
+`GET /health` is not an Azure DevOps hook: it's the container liveness/readiness probe, so its
+constant lives in `internal/httpserver/health.go` rather than in `internal/azuredevops/routes.go`.
+It replies `200 {"status":"ok"}` and contacts nothing — the service is stateless and only talks
+to sinks while handling a webhook, so being able to answer *is* the readiness condition.
 
 ## Status / vote mapping (the domain rules)
 
@@ -175,19 +182,26 @@ Merge status labels live in `getMergeStatusText()` (`succeeded`, `conflicts`, `q
 
 ## Configuration
 
-`config.Config.LoadEnvironment()` loads dotenv files then reads `os.Getenv`. Load order (later
-files do **not** override values already set — `godotenv.Load` is first-wins, so the first
-file listed effectively has priority):
+`config.Config.LoadEnvironment()` loads dotenv files then reads `os.Getenv`, then validates.
+Load order (later files do **not** override values already set — `godotenv.Load` is first-wins,
+so the first file listed effectively has priority, and a real environment variable always beats
+every file):
 
 1. `.env.{APP_ENV}.local`
 2. `.env.local` (skipped entirely when `APP_ENV=test`)
 3. `.env.{APP_ENV}`
 4. `.env`
 
-`APP_ENV` defaults to `development`. **If none of the four files exists, `LoadEnvironment`
-returns `errors.New("no env file was loaded")`** and `main` exits — env vars alone are not
-enough, a file must exist. Note dotenv files are resolved relative to the process's working
-directory, which for `go test` is the package directory (`cmd/server/`), not the repo root.
+`APP_ENV` defaults to `development`. **Dotenv files are optional**: they're a local-development
+convenience, and a container deployment (Kubernetes ConfigMap/Secret, `docker run --env-file`,
+...) has the variables in the process environment with no file on disk. Finding none is logged
+(`config: no env file found, ...`) and is not an error. Note dotenv files are resolved relative
+to the process's working directory, which for `go test` is the package directory
+(`cmd/server/`), not the repo root.
+
+What *is* fatal is a config the service can do nothing with: `validate()` returns an error when
+**no** webhook URL is set at all (any single one is enough), since the process would otherwise
+accept webhooks and deliver nowhere. `main` logs that error and exits.
 
 | Variable | Purpose |
 |---|---|
@@ -199,8 +213,8 @@ directory, which for `go test` is the package directory (`cmd/server/`), not the
 | `AZURE_PROJECT` | Project segment of the Azure REST call |
 | `AZURE_PAT_TOKEN` | PAT used for Basic auth against the Azure REST API |
 
-At least one webhook URL (Discord and/or Google Chat) should be set per event category you
-want notifications for. The listen address comes from gin's `r.Run()` default: `:8080`,
+At least one webhook URL (Discord and/or Google Chat) must be set overall, and should be set
+per event category you want notifications for. The listen address comes from gin's `r.Run()` default: `:8080`,
 overridable with the `PORT` env var. All `.env*` files are gitignored — never commit one, and
 never echo real webhook URLs or PAT values into logs, commits, or PR descriptions.
 
@@ -228,6 +242,8 @@ A `Makefile` wraps the commands above (`make build`, `make test`, `make test-uni
 ### Testing gotchas — read before running `go test ./...`
 
 - `./internal/azuredevops` tests are pure and always pass offline.
+- `./internal/config` tests `os.Chdir` into a `t.TempDir()` and clear every config variable, so
+  they exercise dotenv-less (container-style) loading without seeing the repo's own `.env`.
 - The **`cmd/server` package tests (`main_test.go`) are true end-to-end tests**, but they run
   fully offline: `TestMain` spins up a local `httptest.Server` stub (answers every POST with
   `200`, and every GET — the pipeline route's Azure REST call — with a JSON

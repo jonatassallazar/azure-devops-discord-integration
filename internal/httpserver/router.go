@@ -27,6 +27,8 @@ func (s *Server) SetupRouter() *gin.Engine {
 		Dispatcher: buildDispatcher(s.Config.Discord.ReleaseWebhookURL, s.Config.GoogleChat.ReleaseWebhookURL),
 	}
 
+	r.GET(RouteHealth, healthCheck)
+
 	r.POST(azuredevops.RouteCreatedPR, prHandler.CreatedPR)
 	r.POST(azuredevops.RouteReviewedPR, prHandler.ReviewedPR)
 	r.POST(azuredevops.RouteStatusUpdatedPR, prHandler.StatusUpdatedPR)
