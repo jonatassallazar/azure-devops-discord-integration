@@ -53,6 +53,9 @@ internal/httpserver/
 
 Dockerfile              Multi-stage build (golang:1.22-alpine -> alpine:3.19), exposes 8080
 docker-compose.yml      Single `app` service, host port 8080
+
+.github/workflows/
+  docker-publish.yml    Builds the image and pushes it to ghcr.io (see "CI" below)
 ```
 
 ## Request flow
@@ -241,6 +244,24 @@ A `Makefile` wraps the commands above (`make build`, `make test`, `make test-uni
   always-attempted fallback per `config.Config.LoadEnvironment`), which covers both cases.
 - New fixtures for root tests go in `cmd/server/mocks_test.go` as `fakePayload*` vars.
 
+## CI
+
+`.github/workflows/docker-publish.yml` is the only workflow. It builds the `Dockerfile` with
+Buildx, pushes to `ghcr.io/<owner>/<repo>`, and signs the digest with cosign. Triggers:
+
+| Event | Pushes to GHCR? | Package tags |
+|---|---|---|
+| Push to `main` | yes | `main`, `sha-<short>`, `latest` |
+| Push a `v*.*.*` git tag | yes | `1.2.3`, `1.2`, `latest` |
+| Pull request against `main` | no (build only) | `pr-<n>` (computed, never published) |
+
+Tags come from `docker/metadata-action`'s `tags:` input. That input **replaces** the action's
+default tag set rather than adding to it, so the defaults are written out explicitly there —
+when adding a tag rule, add a line, don't shorten the list. `latest` is applied by
+`type=raw,value=latest,enable={{is_default_branch}}` for `main` and by the action's default
+`latest=auto` flavor for semver tags. There is deliberately no `schedule` trigger: nightly
+rebuilds of an unchanged commit only churned the `latest` digest.
+
 ## Known rough edges
 
 Do not "fix" these silently as part of an unrelated change; flag them or fix them deliberately.
@@ -252,7 +273,9 @@ Do not "fix" these silently as part of an unrelated change; flag them or fix the
   neither was true).
 - Inbound routes are unauthenticated — anyone who can reach the port can post notifications to
   the configured Discord/Google Chat destinations.
-- There is no CI workflow in this repo; checks are local only.
+- CI is publish-only: `.github/workflows/docker-publish.yml` builds and pushes the image, but
+  nothing there runs `go test`, `go vet` or `gofmt` — correctness checks are still local only,
+  and a broken commit on `main` will happily be published as `latest`.
 - There is intentionally no `Source` interface for inbound events (see "Adding a new inbound
   source" above) — only add one when a second real source (e.g. GitHub) is actually being
   built, not speculatively.

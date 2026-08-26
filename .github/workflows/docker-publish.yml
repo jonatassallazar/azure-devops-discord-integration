@@ -6,8 +6,6 @@ name: Docker
 # documentation.
 
 on:
-  schedule:
-    - cron: '45 20 * * *'
   push:
     branches: [ "main" ]
     # Publish semver tags as releases.
@@ -73,7 +71,6 @@ jobs:
           # (metadata-action's default `latest=auto` flavor), so pushes to main
           # would never move the `latest` tag on the package.
           tags: |
-            type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
