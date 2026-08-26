@@ -59,6 +59,10 @@ func (h *PipelineHandler) processStatus(req *AzureRequest) (notify.Level, string
 		return notify.LevelFailure, "Falhada"
 	case "stopped":
 		return notify.LevelWarning, "Interrompida"
+	case "partiallySucceeded":
+		return notify.LevelWarning, "Parcialmente Concluída"
+	case "canceled":
+		return notify.LevelWarning, "Cancelada"
 	default:
 		return notify.LevelUnmapped, fmt.Sprintf("[Status não mapeado: %s]", req.Resource.Result)
 	}

@@ -18,6 +18,8 @@ func TestPipelineHandlerProcessStatus(t *testing.T) {
 		{name: "succeeded", result: "succeeded", wantLevel: notify.LevelSuccess, wantTitle: "Concluída"},
 		{name: "failed", result: "failed", wantLevel: notify.LevelFailure, wantTitle: "Falhada"},
 		{name: "stopped", result: "stopped", wantLevel: notify.LevelWarning, wantTitle: "Interrompida"},
+		{name: "partiallySucceeded", result: "partiallySucceeded", wantLevel: notify.LevelWarning, wantTitle: "Parcialmente Concluída"},
+		{name: "canceled", result: "canceled", wantLevel: notify.LevelWarning, wantTitle: "Cancelada"},
 		{name: "unmapped", result: "any", wantLevel: notify.LevelUnmapped, wantTitle: "[Status não mapeado: any]"},
 	}
 
