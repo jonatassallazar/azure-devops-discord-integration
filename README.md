@@ -80,6 +80,17 @@ appears in more than one file, the earliest file in this list takes priority:
 3. `.env.{APP_ENV}`
 4. `.env`
 
+**Dotenv files are optional.** They are a local-development convenience: when none exists the
+server logs `config: no env file found, reading configuration from environment variables only`
+and runs from the process environment alone — which is what a container deployment
+(Kubernetes ConfigMap/Secret, `docker run --env-file`, ...) provides. A variable set in the
+real environment always wins over the same variable in a file.
+
+Startup fails only when the configuration is unusable, i.e. when **no** webhook URL at all is
+set — the server would accept webhooks and deliver them nowhere. Setting any one of
+`DISCORD_PR_URL`, `DISCORD_PIPELINE_URL`, `DISCORD_RELEASE_URL`, `GOOGLE_CHAT_PR_URL`,
+`GOOGLE_CHAT_PIPELINE_URL` or `GOOGLE_CHAT_RELEASE_URL` satisfies it.
+
 ### How to Get Azure DevOps Personal Access Token (PAT)
 
 1. Access Azure DevOps
@@ -121,6 +132,11 @@ The server exposes the following endpoints that should be configured as Service 
 
 - `POST /release/` - Notifies about release status changes
 
+### Health
+
+- `GET /health` - Liveness/readiness probe. Always replies `200` with `{"status":"ok"}` and
+  contacts no external service; it is not an Azure DevOps Service Hook.
+
 ## 🔧 Azure DevOps Configuration
 
 To configure Service Hooks in Azure DevOps:
@@ -145,7 +161,7 @@ azuredevops-notify/
 │   ├── notify/                   # Vendor-neutral notification model + Sink interface + fan-out dispatcher
 │   │   ├── discord/              # Discord Sink implementation
 │   │   └── googlechat/           # Google Chat Sink implementation
-│   └── httpserver/               # gin server/router wiring
+│   └── httpserver/               # gin server/router wiring + /health probe
 ├── Dockerfile                    # Docker build configuration
 └── docker-compose.yml            # Docker Compose configuration
 ```
@@ -204,6 +220,37 @@ docker run -d \
   --env-file .env \
   --name azuredevops-notify \
   azuredevops-notify
+```
+
+## ☸️ Kubernetes
+
+Configuration comes from the pod's environment — no `.env` file is needed or expected in the
+image. Map non-secret values from a ConfigMap and webhook URLs / the PAT from a Secret, e.g.:
+
+```yaml
+spec:
+  containers:
+    - name: azuredevops-notify
+      image: ghcr.io/your-username/azuredevops-notify:latest
+      ports:
+        - containerPort: 8080
+      envFrom:
+        - configMapRef:
+            name: azuredevops-notify-config   # APP_ENV, GIN_MODE, AZURE_ORGANIZATION, AZURE_PROJECT
+        - secretRef:
+            name: azuredevops-notify-secret   # AZURE_PAT_TOKEN, DISCORD_*_URL, GOOGLE_CHAT_*_URL
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 15
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 2
+        periodSeconds: 10
 ```
 
 ## 📝 Development
